@@ -116,9 +116,11 @@ def test_full_loop_with_fake_codex(tmp_path: Path) -> None:
     assert result["terminated"] is False
     boosted_prompt = package / "boost_runs" / "rounds" / "v001_boosted" / "workspace" / "inputs" / "prompt.md"
     boosted_prompt_text = boosted_prompt.read_text(encoding="utf-8")
-    assert "expert-boosting revision round" in boosted_prompt_text
+    assert boosted_prompt_text.startswith("# StarBoost Expert-Boosting Revision Round")
+    assert "## Original Task Prompt\n\nCreate answer.md from the input." in boosted_prompt_text
+    assert "You are not answering the reviewer" in boosted_prompt_text
+    assert "Modify the deliverables" in boosted_prompt_text
     assert "Use only the weaknesses" in boosted_prompt_text
-    assert "Do not write a response to the reviewer" in boosted_prompt_text
     boosted_output = package / "boost_runs" / "rounds" / "v001_boosted" / "workspace" / "outputs" / "answer.md"
     assert "visible material" in boosted_output.read_text(encoding="utf-8")
 

@@ -35,11 +35,9 @@ def _archive_stale_round(round_root: Path) -> None:
 
 
 def _append_runtime_guidance(prompt: str, boosted: bool) -> str:
-    common = """
+    clean_prompt = prompt.rstrip()
+    common = """## StarBoost Runtime Note
 
----
-
-StarBoost runtime note:
 - You are working inside a clean workspace.
 - Task files are available under `./inputs/`.
 - Additional visible files, if any, are under `./inputs/materials/`.
@@ -47,17 +45,32 @@ StarBoost runtime note:
 - Do not write outside this workspace.
 """
     if not boosted:
-        return prompt.rstrip() + common
-    boost = """
+        return clean_prompt + "\n\n---\n\n" + common
+    return f"""# StarBoost Expert-Boosting Revision Round
+
+You are a fresh executor agent working on a revision round. Your job is to improve the latest deliverables for the original task, using the latest human expert weaknesses as the required revision targets.
+
+You are not answering the reviewer. You are not writing a change log. You are producing a polished, complete replacement deliverable package for the original task.
+
+## Original Task Prompt
+
+{clean_prompt}
+
+## Available Inputs
+
 - Previous deliverables are available under `./inputs/previous_deliverables/`.
 - The latest human expert weaknesses are available in `./inputs/review_weaknesses.md`.
-- This is an expert-boosting revision round. Your job is to produce a new complete version of the task deliverables after reviewing the original task, the latest deliverables, and the latest expert weaknesses.
+
+{common}
+## Revision Instructions
+
+- Treat the original task prompt above as the task you still need to satisfy.
+- Inspect the latest deliverables and decide whether to edit, reuse, or rebuild them.
+- Modify the deliverables by naturally resolving the latest expert weaknesses.
 - Use only the weaknesses in `./inputs/review_weaknesses.md` as review feedback. Do not rely on strengths, scores, hidden references, or prior conversation context.
 - Preserve useful work from the latest deliverables when it is still correct, but naturally fix the listed weaknesses in the new deliverable.
-- Do not write a response to the reviewer, a change log, or a patch note. The output should read like a standalone final deliverable for the original task.
 - Produce a complete replacement deliverable package in `./outputs/`, not a patch file.
 """
-    return prompt.rstrip() + common + boost
 
 
 def _prepare_workspace(
