@@ -93,14 +93,17 @@ def test_full_loop_with_fake_codex(tmp_path: Path) -> None:
     review_path.write_text(
         """# Review
 
-## Scores
-- correctness: 3/5
-
 ## Strengths
 - It produced a file.
 
 ## Weaknesses
 - It should mention the visible material.
+
+## Latest Deliverables Satisfaction
+(3)/5
+
+## Latest Deliverables Aligns User Scores
+(5)/10
 
 ## Notes
 """,
@@ -117,13 +120,16 @@ def test_full_loop_with_fake_codex(tmp_path: Path) -> None:
     second_path.write_text(
         """# Review
 
-## Scores
-- correctness: 5/5
-
 ## Strengths
 - It addressed the weakness.
 
 ## Weaknesses
+
+## Latest Deliverables Satisfaction
+(5)/5
+
+## Latest Deliverables Aligns User Scores
+(9)/10
 
 ## Notes
 """,
