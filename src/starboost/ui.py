@@ -5,6 +5,7 @@ from typing import Any, Dict, Iterable, List, Optional
 
 
 WIDTH = 84
+PATH_KEYS = {"path", "directory", "package", "outputs", "deliverables", "review file", "export", "latest export"}
 
 
 def _clip(text: Any, width: int) -> str:
@@ -58,6 +59,26 @@ def kv(label: str, value: Any) -> str:
     return f"{label.ljust(18)} {value}"
 
 
+def path_kv(label: str, value: Any) -> str:
+    if value in {None, ""}:
+        return kv(label, value)
+    return kv(label, f"<{label}>")
+
+
+def append_paths(panel_text: str, rows: Iterable[str]) -> str:
+    paths: List[str] = []
+    for row in rows:
+        if not isinstance(row, str) or " " not in row:
+            continue
+        label = row[:18].strip().lower()
+        value = row[19:].strip() if len(row) > 19 else ""
+        if label in PATH_KEYS and value and not (value.startswith("<") and value.endswith(">")):
+            paths.append(f"{row[:18].strip()}: {value}")
+    if not paths:
+        return panel_text
+    return panel_text + "\n\nPaths:\n" + "\n".join(paths)
+
+
 def next_action(status: Optional[Dict[str, Any]]) -> str:
     if not status:
         return "Run `load_task <path>` to start."
@@ -103,27 +124,39 @@ def render_status(status: Dict[str, Any], package_path: Optional[Path] = None, t
         kv("Min weaknesses", status.get("current_min_weaknesses")),
     ]
     if package_path:
-        rows.append(kv("Package", package_path))
+        rows.append(path_kv("Package", package_path))
     if status.get("latest_outputs"):
-        rows.append(kv("Outputs", status.get("latest_outputs")))
+        rows.append(path_kv("Outputs", status.get("latest_outputs")))
     if status.get("last_error"):
         rows.append(kv("Last error", status.get("last_error")))
     exports = status.get("exports") or []
     if exports:
-        rows.append(kv("Latest export", exports[-1].get("path")))
+        rows.append(path_kv("Latest export", exports[-1].get("path")))
     rows.extend(["", kv("Next", next_action(status))])
-    return panel(title, rows)
+    path_rows = []
+    if package_path:
+        path_rows.append(kv("Package", package_path))
+    if status.get("latest_outputs"):
+        path_rows.append(kv("Outputs", status.get("latest_outputs")))
+    if exports:
+        path_rows.append(kv("Latest export", exports[-1].get("path")))
+    return append_paths(panel(title, rows), path_rows)
 
 
 def render_review(info: Dict[str, Any]) -> str:
-    return panel(
-        "Review workspace",
-        [
-            kv("Review file", info.get("review_path")),
-            kv("Deliverables", info.get("deliverables_path")),
-            "",
-            "Edit the review file, then run `submit`.",
-        ],
+    rows = [
+        path_kv("Review file", info.get("review_path")),
+        path_kv("Deliverables", info.get("deliverables_path")),
+        "",
+        "Edit the review file, then run `submit`.",
+    ]
+    path_rows = [
+        kv("Review file", info.get("review_path")),
+        kv("Deliverables", info.get("deliverables_path")),
+    ]
+    return append_paths(
+        panel("Review workspace", rows),
+        path_rows,
     )
 
 
@@ -142,13 +175,20 @@ def render_submit(result: Dict[str, Any]) -> str:
     if result.get("round"):
         round_info = result["round"]
         rows.append(kv("New round", round_info.get("round_id")))
-        rows.append(kv("Outputs", round_info.get("outputs")))
+        rows.append(path_kv("Outputs", round_info.get("outputs")))
     if result.get("export"):
-        rows.append(kv("Export", result["export"].get("path")))
+        rows.append(path_kv("Export", result["export"].get("path")))
     if result.get("review_path"):
-        rows.append(kv("Review file", result.get("review_path")))
+        rows.append(path_kv("Review file", result.get("review_path")))
     rows.extend(["", kv("Next", "Run `review` for the new output." if result.get("accepted") and not result.get("terminated") else "Fix the review file and run `submit` again." if not result.get("accepted") else "The loop is complete.")])
-    return panel("Submit result", rows)
+    path_rows = []
+    if result.get("round"):
+        path_rows.append(kv("Outputs", result["round"].get("outputs")))
+    if result.get("export"):
+        path_rows.append(kv("Export", result["export"].get("path")))
+    if result.get("review_path"):
+        path_rows.append(kv("Review file", result.get("review_path")))
+    return append_paths(panel("Submit result", rows), path_rows)
 
 
 def render_validation(result: Dict[str, Any]) -> str:
@@ -165,7 +205,9 @@ def render_validation(result: Dict[str, Any]) -> str:
 def render_export(result: Dict[str, Any]) -> str:
     path = result.get("path")
     directory = Path(str(path)).parent if path else None
-    return panel("Export", [kv("Path", path), kv("Directory", directory), kv("Bytes", result.get("bytes"))])
+    rows = [path_kv("Path", path), path_kv("Directory", directory), kv("Bytes", result.get("bytes"))]
+    path_rows = [kv("Path", path), kv("Directory", directory)]
+    return append_paths(panel("Export", rows), path_rows)
 
 
 def render_message(title: str, *lines: Any) -> str:
