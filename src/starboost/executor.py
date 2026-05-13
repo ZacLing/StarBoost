@@ -22,6 +22,18 @@ def _round_id(index: int) -> str:
     return f"v{index:03d}_boosted"
 
 
+def _archive_stale_round(round_root: Path) -> None:
+    stale_root = round_root.parent.parent / "stale"
+    ensure_dir(stale_root)
+    timestamp = utc_now().replace(":", "").replace("-", "")
+    target = stale_root / f"{round_root.name}_{timestamp}"
+    counter = 1
+    while target.exists():
+        counter += 1
+        target = stale_root / f"{round_root.name}_{timestamp}_{counter}"
+    shutil.move(str(round_root), str(target))
+
+
 def _append_runtime_guidance(prompt: str, boosted: bool) -> str:
     common = """
 
@@ -164,6 +176,9 @@ def _docker_command(config: Dict[str, Any], paths: Dict[str, Path], allow_web_se
 
 def _local_command(config: Dict[str, Any], paths: Dict[str, Path], allow_web_search: bool) -> List[str]:
     codex_bin = str(config.get("codex_bin") or "codex")
+    codex_path = Path(codex_bin).expanduser()
+    if codex_path.exists():
+        codex_bin = str(codex_path.resolve())
     sandbox = str(config.get("local_sandbox") or "workspace-write")
     return [codex_bin, *_codex_exec_args(config, str(paths["workspace"] / "final.md"), allow_web_search, sandbox)]
 
@@ -178,7 +193,9 @@ def run_executor_round(
     round_id = _round_id(round_index)
     round_root = spec.package_root / "boost_runs" / "rounds" / round_id
     if round_root.exists():
-        raise ExecutorError(f"Round directory already exists: {round_root}")
+        if (round_root / "manifest.json").exists():
+            raise ExecutorError(f"Round directory already exists with manifest: {round_root}")
+        _archive_stale_round(round_root)
     paths = _prepare_workspace(spec, round_root, round_index > 0, previous_outputs, weaknesses)
     config = state["config"]["executor"]
     backend = str(config.get("backend") or "docker")

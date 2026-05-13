@@ -60,8 +60,11 @@ def load_or_initialize_state(spec: TaskSpec, overrides: RuntimeOverrides) -> Dic
     if has_state(spec.package_root):
         state = load_state(spec.package_root)
         state["config"] = apply_overrides(state.get("config", {}), overrides)
+        recover_rounds_from_manifests(spec.package_root, state)
         return state
-    return initialize_state(spec, overrides)
+    state = initialize_state(spec, overrides)
+    recover_rounds_from_manifests(spec.package_root, state)
+    return state
 
 
 def latest_round(state: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -70,3 +73,27 @@ def latest_round(state: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         return None
     return rounds[-1]
 
+
+def recover_rounds_from_manifests(package_root: Path, state: Dict[str, Any]) -> None:
+    if state.get("rounds"):
+        return
+    rounds_dir = package_root / "boost_runs" / "rounds"
+    if not rounds_dir.exists():
+        return
+    recovered = []
+    for manifest_path in sorted(rounds_dir.glob("*/manifest.json")):
+        try:
+            manifest = read_json(manifest_path)
+        except Exception:
+            continue
+        if isinstance(manifest, dict):
+            recovered.append(manifest)
+    if not recovered:
+        return
+    recovered.sort(key=lambda item: int(item.get("round_index", 0)))
+    latest = recovered[-1]
+    state["rounds"] = recovered
+    state["current_round"] = int(latest.get("round_index", len(recovered) - 1))
+    state["latest_deliverable_round"] = latest.get("round_id")
+    state["status"] = "awaiting_review"
+    state["last_error"] = None

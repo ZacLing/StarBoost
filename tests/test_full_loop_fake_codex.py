@@ -134,3 +134,31 @@ def test_full_loop_with_fake_codex(tmp_path: Path) -> None:
     assert terminal["terminated"] is True
     assert Path(terminal["export"]["path"]).exists()
 
+
+def test_load_task_archives_stale_incomplete_round(tmp_path: Path) -> None:
+    fake = _fake_codex(tmp_path)
+    package = _package(tmp_path, fake)
+    stale_round = package / "boost_runs" / "rounds" / "v000_cold_start"
+    stale_round.mkdir(parents=True)
+    (stale_round / "stderr.log").write_text("interrupted", encoding="utf-8")
+
+    session = StarBoostSession(package, RuntimeOverrides(executor_backend="local", codex_bin=str(fake), no_open=True))
+    status = session.load_task()
+
+    assert status["round_count"] == 1
+    assert (package / "boost_runs" / "rounds" / "v000_cold_start" / "manifest.json").exists()
+    stale_dirs = list((package / "boost_runs" / "stale").glob("v000_cold_start_*"))
+    assert stale_dirs
+
+
+def test_local_executor_resolves_relative_codex_bin(tmp_path: Path, monkeypatch) -> None:
+    fake = _fake_codex(tmp_path)
+    relative_fake = Path("fake_codex.py")
+    package = _package(tmp_path, fake)
+    monkeypatch.chdir(tmp_path)
+
+    session = StarBoostSession(package, RuntimeOverrides(executor_backend="local", codex_bin=str(relative_fake), no_open=True))
+    status = session.load_task()
+
+    assert status["round_count"] == 1
+    assert (package / "boost_runs" / "rounds" / "v000_cold_start" / "workspace" / "outputs" / "answer.md").exists()
