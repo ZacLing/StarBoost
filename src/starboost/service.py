@@ -43,7 +43,13 @@ class StarBoostSession:
         if not self.state.get("rounds"):
             self.state["status"] = "running_cold_start"
             save_state(self.package_root, self.state)
-            metadata = run_executor_round(self.spec, self.state)
+            try:
+                metadata = run_executor_round(self.spec, self.state)
+            except Exception as exc:
+                self.state["status"] = "executor_failed"
+                self.state["last_error"] = str(exc)
+                save_state(self.package_root, self.state)
+                raise
             self.state["rounds"].append(metadata)
             self.state["current_round"] = metadata["round_index"]
             self.state["latest_deliverable_round"] = metadata["round_id"]
@@ -67,6 +73,7 @@ class StarBoostSession:
             "current_min_weaknesses": self.state.get("current_min_weaknesses"),
             "next_review_index": self.state.get("next_review_index"),
             "exports": self.state.get("exports") or [],
+            "last_error": self.state.get("last_error"),
         }
 
     def start_review(self) -> Dict[str, Any]:
@@ -137,7 +144,12 @@ class StarBoostSession:
         save_review_json(review_path.parent / "review.json", parsed, validation)
         write_json(review_path.parent / "validation.json", validation)
         if not validation["valid"]:
-            return {"accepted": False, "validation": validation, "review_path": str(review_path)}
+            return {
+                "accepted": False,
+                "validation": validation,
+                "review_path": str(review_path),
+                "deliverables_path": current["outputs"],
+            }
 
         review_record = {
             "review_id": parsed.review_id,
@@ -149,10 +161,10 @@ class StarBoostSession:
             "weakness_count": len(parsed.weaknesses),
             "scores": parsed.scores,
         }
-        self.state.setdefault("reviews", []).append(review_record)
         policy = self.state["config"].get("review_policy", {})
         current_min_weaknesses = int(self.state.get("current_min_weaknesses") or 0)
         if current_min_weaknesses == 0 and len(parsed.weaknesses) == 0 and policy.get("allow_zero_weakness_termination", True):
+            self.state.setdefault("reviews", []).append(review_record)
             self.state["status"] = "terminated"
             export_record = export_package(self.package_root, self.state)
             self.state.setdefault("exports", []).append(export_record)
@@ -162,7 +174,14 @@ class StarBoostSession:
         self.state["status"] = "running_boost_round"
         save_state(self.package_root, self.state)
         previous_outputs = Path(str(current["outputs"]))
-        metadata = run_executor_round(self.spec, self.state, parsed.weaknesses, previous_outputs)
+        try:
+            metadata = run_executor_round(self.spec, self.state, parsed.weaknesses, previous_outputs)
+        except Exception as exc:
+            self.state["status"] = "executor_failed"
+            self.state["last_error"] = str(exc)
+            save_state(self.package_root, self.state)
+            raise
+        self.state.setdefault("reviews", []).append(review_record)
         self.state["rounds"].append(metadata)
         self.state["current_round"] = metadata["round_index"]
         self.state["latest_deliverable_round"] = metadata["round_id"]

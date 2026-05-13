@@ -42,6 +42,8 @@ def next_action(status: Optional[Dict[str, Any]]) -> str:
         return "Run `review`, edit the review file, then run `submit`."
     if state == "terminated":
         return "Run `export` if you want a fresh archive."
+    if state == "executor_failed":
+        return "Fix the executor issue, then rerun the last command."
     if state and str(state).startswith("running"):
         return "Wait for the current run to finish."
     return "Run `status` to inspect the task."
@@ -80,6 +82,8 @@ def render_status(status: Dict[str, Any], package_path: Optional[Path] = None, t
         rows.append(kv("Package", package_path))
     if status.get("latest_outputs"):
         rows.append(kv("Outputs", status.get("latest_outputs")))
+    if status.get("last_error"):
+        rows.append(kv("Last error", status.get("last_error")))
     exports = status.get("exports") or []
     if exports:
         rows.append(kv("Latest export", exports[-1].get("path")))
@@ -140,4 +144,3 @@ def render_export(result: Dict[str, Any]) -> str:
 
 def render_message(title: str, *lines: Any) -> str:
     return panel(title, [str(line) for line in lines])
-

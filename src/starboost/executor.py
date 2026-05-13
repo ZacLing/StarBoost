@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 
 from .task_package import TaskSpec
 from .trace import summarize_events
-from .util import artifact_manifest, copy_path, ensure_dir, remove_if_exists, utc_now, write_json, write_text
+from .util import artifact_manifest, copy_path, ensure_dir, read_json, remove_if_exists, utc_now, write_json, write_text
 
 
 class ExecutorError(RuntimeError):
@@ -32,6 +32,14 @@ def _archive_stale_round(round_root: Path) -> None:
         counter += 1
         target = stale_root / f"{round_root.name}_{timestamp}_{counter}"
     shutil.move(str(round_root), str(target))
+
+
+def _manifest_is_successful(manifest_path: Path) -> bool:
+    try:
+        manifest = read_json(manifest_path)
+    except Exception:
+        return False
+    return int(manifest.get("exit_code", -1)) == 0 and not bool(manifest.get("timed_out"))
 
 
 def _append_runtime_guidance(prompt: str, boosted: bool) -> str:
@@ -213,7 +221,8 @@ def run_executor_round(
     round_id = _round_id(round_index)
     round_root = spec.package_root / "boost_runs" / "rounds" / round_id
     if round_root.exists():
-        if (round_root / "manifest.json").exists():
+        manifest_path = round_root / "manifest.json"
+        if manifest_path.exists() and _manifest_is_successful(manifest_path):
             raise ExecutorError(f"Round directory already exists with manifest: {round_root}")
         _archive_stale_round(round_root)
     paths = _prepare_workspace(spec, round_root, round_index > 0, previous_outputs, weaknesses)

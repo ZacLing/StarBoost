@@ -58,6 +58,8 @@ Useful options:
 
 When `load_task` needs to run a cold-start executor, or `submit` needs to launch the next boosted executor, the CLI prints a progress message and spinner. Existing checkpoint packages load quickly without starting a new executor.
 
+If review validation fails, StarBoost reports the errors and reopens the review file and deliverables so you can fix the comments. If an executor run fails, the task status becomes `executor_failed`, the dashboard shows the last error, and the failed round is treated as retryable rather than blocking future attempts.
+
 `export` is intended for completed packages. By default it only runs after the task status is `terminated`, which prevents an in-progress review loop from being mistaken for a final archive. If you intentionally need a mid-process archive, use `starboost export --force`; treat that output as a snapshot rather than the final reviewed package.
 
 In interactive mode, StarBoost prints compact panels instead of raw JSON so the workspace is easier to scan. Direct commands keep JSON-style output for scripts and automation.

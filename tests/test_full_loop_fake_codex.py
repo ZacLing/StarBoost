@@ -44,6 +44,22 @@ if final_path:
     return script
 
 
+def _failing_codex(tmp_path: Path) -> Path:
+    script = tmp_path / "failing_codex.py"
+    script.write_text(
+        """#!/usr/bin/env python3
+import sys
+
+sys.stdin.read()
+print("executor failed on purpose", file=sys.stderr)
+raise SystemExit(7)
+""",
+        encoding="utf-8",
+    )
+    script.chmod(script.stat().st_mode | stat.S_IXUSR)
+    return script
+
+
 def _package(tmp_path: Path, fake_codex: Path) -> Path:
     root = tmp_path / "pkg"
     original = root / "original_task"
@@ -155,6 +171,58 @@ def test_full_loop_with_fake_codex(tmp_path: Path) -> None:
     assert terminal["terminated"] is True
     assert Path(terminal["export"]["path"]).exists()
     assert Path(session.export()["path"]).exists()
+
+
+def test_invalid_review_result_includes_paths_to_reopen(tmp_path: Path) -> None:
+    fake = _fake_codex(tmp_path)
+    package = _package(tmp_path, fake)
+    session = StarBoostSession(package, RuntimeOverrides(executor_backend="local", codex_bin=str(fake), no_open=True))
+
+    session.load_task()
+    review_info = session.start_review()
+    review_path = Path(review_info["review_path"])
+    review_path.write_text(
+        """# Review
+
+## Strengths
+
+## Weaknesses
+
+## Latest Deliverables Satisfaction
+()/5
+
+## Latest Deliverables Aligns User Scores
+()/10
+""",
+        encoding="utf-8",
+    )
+
+    result = session.submit_review()
+
+    assert result["accepted"] is False
+    assert result["review_path"] == str(review_path)
+    assert result["deliverables_path"] == review_info["deliverables_path"]
+
+
+def test_failed_cold_start_sets_failed_status_and_can_retry(tmp_path: Path) -> None:
+    failing = _failing_codex(tmp_path)
+    package = _package(tmp_path, failing)
+    session = StarBoostSession(package, RuntimeOverrides(executor_backend="local", codex_bin=str(failing), no_open=True))
+
+    with pytest.raises(Exception, match="exit code 7"):
+        session.load_task()
+
+    failed = StarBoostSession(package, RuntimeOverrides(executor_backend="local", codex_bin=str(failing), no_open=True))
+    assert failed.status()["status"] == "executor_failed"
+    assert "exit code 7" in failed.status()["last_error"]
+
+    fake = _fake_codex(tmp_path)
+    retried = StarBoostSession(package, RuntimeOverrides(executor_backend="local", codex_bin=str(fake), no_open=True))
+    status = retried.load_task()
+
+    assert status["status"] == "awaiting_review"
+    assert status["round_count"] == 1
+    assert list((package / "boost_runs" / "stale").glob("v000_cold_start_*"))
 
 
 def test_export_requires_terminal_state_unless_forced(tmp_path: Path) -> None:

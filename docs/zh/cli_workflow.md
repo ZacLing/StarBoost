@@ -60,6 +60,8 @@ starboost clear
 
 当 `load_task` 需要启动 cold-start executor，或者 `submit` 需要启动下一轮 boosted executor 时，CLI 会显示进度提示和 spinner。已有 checkpoint 的任务会直接加载，不会额外启动 executor。
 
+如果 review 校验失败，StarBoost 会显示错误，并重新打开 review 文件和 deliverables，方便你直接修改。如果 executor 运行失败，任务状态会变成 `executor_failed`，dashboard 会显示最后的错误信息，并且失败 round 会被视为可重试，不会挡住后续重新运行。
+
 `export` 默认只用于已经完成的任务。也就是说，只有任务状态变成 `terminated` 后，它才会正常导出，避免把仍在 review 循环中的中间状态误认为最终包。如果确实需要保存过程快照，可以使用 `starboost export --force`；这个导出应被视为 snapshot，而不是最终审完的交付包。
 
 交互式模式会输出紧凑的面板，而不是原始 JSON，方便专家快速浏览当前状态。直接命令仍保留 JSON 风格输出，便于脚本和自动化使用。

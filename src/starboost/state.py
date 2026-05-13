@@ -89,6 +89,8 @@ def recover_rounds_from_manifests(package_root: Path, state: Dict[str, Any]) -> 
         except Exception:
             continue
         if isinstance(manifest, dict):
+            if int(manifest.get("exit_code", -1)) != 0 or bool(manifest.get("timed_out")):
+                continue
             recovered.append(manifest)
     if not recovered:
         return

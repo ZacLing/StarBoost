@@ -104,7 +104,7 @@ def _print_json(data: Any) -> None:
 
 
 def _maybe_open(path: str, no_open: bool) -> None:
-    if no_open:
+    if no_open or not path or path == "None":
         return
     try:
         subprocess.run(["open", path], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -162,6 +162,9 @@ def cmd_submit(args: argparse.Namespace) -> int:
         lambda: session.submit_review(review_path),
     )
     _print_json(result)
+    if not result.get("accepted"):
+        _maybe_open(str(result.get("review_path") or ""), args.no_open)
+        _maybe_open(str(result.get("deliverables_path") or ""), args.no_open)
     return 0 if result.get("accepted") else 2
 
 
@@ -313,6 +316,9 @@ class StarBoostShell(cmd.Cmd):
                 lambda: session.submit_review(review_path),
             )
             print(render_submit(result))
+            if not result.get("accepted"):
+                _maybe_open(str(result.get("review_path") or ""), args.no_open)
+                _maybe_open(str(result.get("deliverables_path") or ""), args.no_open)
             self._refresh_prompt()
         except SystemExit:
             return
