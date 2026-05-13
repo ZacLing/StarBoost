@@ -7,9 +7,12 @@
   "starboost": {
     "review_policy": {
       "min_strengths": 1,
-      "initial_min_weaknesses": 2,
+      "initial_min_weaknesses": 3,
       "weakness_decrement_per_round": 1,
       "allow_zero_weakness_termination": true
+    },
+    "executor": {
+      "timeout_seconds": 1800
     }
   }
 }

@@ -25,6 +25,8 @@ starboost validate examples/biostats_csv_task
 starboost validate examples/legal_risk_memo_task
 ```
 
+The examples intentionally use different review policies. For instance, `simple_memo_task` is a one-weakness lightweight demo, `code_cli_task` starts with four required weaknesses and decrements by two per accepted round, and `legal_risk_memo_task` uses the default-style five-weakness qualitative review loop.
+
 Start the interactive workspace:
 
 ```bash

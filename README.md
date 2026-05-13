@@ -93,12 +93,12 @@ starboost validate examples/simple_memo_task
 
 Bundled examples include:
 
-| Package | What it demonstrates |
-| --- | --- |
-| `examples/simple_memo_task` | A short implementation memo from project notes. |
-| `examples/code_cli_task` | A Python standard-library CLI deliverable with tests. |
-| `examples/biostats_csv_task` | A biostatistics summary CSV generated from trial measurements. |
-| `examples/legal_risk_memo_task` | A legal-style vendor data-sharing risk memo grounded in supplied policy excerpts. |
+| Package | What it demonstrates | Review policy | Executor config |
+| --- | --- | --- | --- |
+| `examples/simple_memo_task` | A short implementation memo from project notes. | `min_strengths=1`, `initial_min_weaknesses=1`, decrement `1`; a lightweight one-issue demo. | Defaults. |
+| `examples/code_cli_task` | A Python standard-library CLI deliverable with tests. | `min_strengths=2`, `initial_min_weaknesses=4`, decrement `2`; code review starts stricter but tapers faster. | `timeout_seconds=3600`. |
+| `examples/biostats_csv_task` | A biostatistics summary CSV generated from trial measurements. | `min_strengths=1`, `initial_min_weaknesses=3`, decrement `1`; focused review for numeric correctness and formatting. | `timeout_seconds=1800`. |
+| `examples/legal_risk_memo_task` | A legal-style vendor data-sharing risk memo grounded in supplied policy excerpts. | `min_strengths=3`, `initial_min_weaknesses=5`, decrement `1`; richer qualitative review for nuanced writing. | `timeout_seconds=2400`. |
 
 By default StarBoost uses Docker isolation for executor runs. See [Docker And Auth](docs/docker_and_auth.md) for the image and credential expectations.
 

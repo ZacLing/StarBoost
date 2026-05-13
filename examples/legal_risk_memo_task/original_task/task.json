@@ -6,10 +6,13 @@
   "allow_web_search": false,
   "starboost": {
     "review_policy": {
-      "min_strengths": 1,
-      "initial_min_weaknesses": 2,
+      "min_strengths": 3,
+      "initial_min_weaknesses": 5,
       "weakness_decrement_per_round": 1,
       "allow_zero_weakness_termination": true
+    },
+    "executor": {
+      "timeout_seconds": 2400
     }
   }
 }
