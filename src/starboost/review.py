@@ -55,9 +55,8 @@ def create_review_template(
 
 ### Strengths
 
-Please provide at least {min_strengths} distinct strengths of the current deliverables.
-
-Write strengths below:
+> Please provide at least {min_strengths} distinct strengths of the current deliverables.
+> Write strengths below.
 
 {strengths}
 
@@ -65,9 +64,10 @@ Write strengths below:
 
 ### Weaknesses
 
-Please provide at least {min_weaknesses} distinct weaknesses in this round. This number is only a lower bound; you may write more if the deliverables still need work. If the minimum is 0 and you write no weaknesses, the boosting loop will terminate.
-
-Write weaknesses below:
+> Please provide at least {min_weaknesses} distinct weaknesses in this round.
+> This number is only a lower bound; you may write more if the deliverables still need work.
+> If the minimum is 0 and you write no weaknesses, the boosting loop will terminate.
+> Write weaknesses below.
 
 {weaknesses}
 
@@ -75,9 +75,9 @@ Write weaknesses below:
 
 ### Latest Deliverables Satisfaction
 
-Score the current deliverables only. Use an integer from 1 to 5, where 5 means very satisfied and 1 means very dissatisfied.
-
-Write the score below:
+> Score the current deliverables only.
+> Use an integer from 1 to 5, where 5 means very satisfied and 1 means very dissatisfied.
+> Write the score below.
 
 ()/5
 
@@ -85,9 +85,9 @@ Write the score below:
 
 ### Latest Deliverables Aligns User Scores
 
-Score the current deliverables against your own expected performance on this task. Use an integer from 1 to 10. Treat 5 as the level you personally would have achieved on this task.
-
-Write the score below:
+> Score the current deliverables against your own expected performance on this task.
+> Use an integer from 1 to 10. Treat 5 as the level you personally would have achieved on this task.
+> Write the score below.
 
 ()/10
 
@@ -95,7 +95,7 @@ Write the score below:
 
 ### Notes
 
-Optional notes for yourself or future audit context:
+> Optional notes for yourself or future audit context.
 
 
 """

@@ -112,6 +112,6 @@ def test_review_template_has_clear_visual_fill_areas(tmp_path: Path) -> None:
     assert "| Minimum strengths required | `3` |" in text
     assert "| Minimum weaknesses required | `2` |" in text
     assert text.count("---") >= 5
-    assert "Write strengths below:" in text
-    assert "Write weaknesses below:" in text
-    assert "Write the score below:" in text
+    assert "> Write strengths below." in text
+    assert "> Write weaknesses below." in text
+    assert "> Write the score below." in text
