@@ -1,0 +1,15 @@
+.git
+.venv
+.pytest_cache
+dev
+dev_*
+boost_runs
+exports
+starboost.json
+*.egg-info
+__pycache__
+*.pyc
+.env
+.env.*
+!.env.example
+

@@ -1,0 +1,15 @@
+[
+  {
+    "id": "R001",
+    "question": "Does the deliverable include outputs/implementation_memo.md?",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R002",
+    "question": "Does the memo mention the intended user, required deliverable, execution steps, and risks?",
+    "expected": true,
+    "fail_fast": true
+  }
+]
+
