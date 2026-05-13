@@ -1,18 +1,42 @@
 # CLI Workflow
 
-StarBoost provides both direct commands and an interactive shell.
+StarBoost is designed as a command-line workspace. Running `starboost` with no arguments opens the interactive shell:
+
+```bash
+starboost
+```
+
+The prompt shows the current task:
+
+```text
+starboost [no task]>
+starboost [simple_memo_task]>
+```
+
+Inside the shell:
+
+```text
+starboost [no task]> load_task ./examples/simple_memo_task
+starboost [simple_memo_task]> review
+starboost [simple_memo_task]> submit
+starboost [simple_memo_task]> status
+starboost [simple_memo_task]> exit
+```
 
 Direct commands:
 
 ```bash
 starboost validate <package>
 starboost load_task <package>
-starboost review <package>
-starboost submit <package>
-starboost status <package>
-starboost export <package>
-starboost shell
+starboost review [package]
+starboost submit [package]
+starboost status [package]
+starboost export [package]
+starboost current
+starboost clear
 ```
+
+After `load_task`, StarBoost remembers the current task. That means `starboost review`, `starboost submit`, `starboost status`, and `starboost export` can be run without a package path. Explicit paths still work and always override the current task.
 
 Useful options:
 
@@ -27,6 +51,6 @@ Useful options:
 --no-open
 ```
 
-`load_task` creates runtime folders and automatically runs the cold-start executor if no prior deliverable exists. `review` creates a template for the latest deliverable. `submit` validates that template and either launches the next executor round or terminates and exports the package if the zero-weakness termination rule is met.
+`load_task` creates runtime folders, automatically runs the initial executor if no prior deliverable exists, and makes the package the current task. `review` creates a template for the latest deliverable. `submit` validates that template and either launches the next executor round or terminates and exports the package if the zero-weakness termination rule is met.
 
 Use `--executor-backend local` only for smoke tests. Docker is the default and recommended backend for isolation.

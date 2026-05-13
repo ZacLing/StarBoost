@@ -1,6 +1,6 @@
 # Review Guidelines
 
-Each review should be concrete enough for a fresh executor to improve the deliverable without seeing the expert's hidden reasoning.
+Each review should be concrete enough for the next AI round to improve the deliverable without seeing the expert's hidden reasoning.
 
 The review has two audiences:
 

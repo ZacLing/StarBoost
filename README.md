@@ -40,17 +40,25 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -e ".[dev]"
 
-# Validate a task package, run cold start if needed, and create boost_runs/.
+# Start the StarBoost workspace.
+starboost
+
+# Inside the workspace, load a task package.
+starboost [no task]> load_task /path/to/package --executor-model gpt-5.5
+
+# The loaded task becomes current, so the common loop no longer needs a path.
+starboost [my_task]> review
+starboost [my_task]> submit
+starboost [my_task]> status
+```
+
+Direct commands work too. After `load_task`, StarBoost remembers the current task:
+
+```bash
 starboost load_task /path/to/package --executor-model gpt-5.5
-
-# Create/open a review template for the latest deliverable.
-starboost review /path/to/package
-
-# After editing the review file, validate it and launch the next round.
-starboost submit /path/to/package
-
-# Show current state.
-starboost status /path/to/package
+starboost review
+starboost submit
+starboost status
 ```
 
 Validate the bundled example package:
@@ -96,4 +104,3 @@ Executors never receive `rubrics.json` or `human_reference.json`; they only rece
 | CLI Workflow | [CLI Workflow](docs/cli_workflow.md) | [命令行流程](docs/zh/cli_workflow.md) |
 | Review Guidelines | [Review Guidelines](docs/review_guidelines.md) | [审阅指南](docs/zh/review_guidelines.md) |
 | Docker And Auth | [Docker And Auth](docs/docker_and_auth.md) | [Docker 与认证](docs/zh/docker_and_auth.md) |
-

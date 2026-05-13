@@ -22,22 +22,26 @@ The repository includes a tiny example:
 starboost validate examples/simple_memo_task
 ```
 
-Start or resume the boosting loop:
+Start the interactive workspace:
 
 ```bash
-starboost load_task ./examples/my_task --executor-model gpt-5.5
+starboost
 ```
 
-Create a review template:
+Load a task package inside the workspace:
 
-```bash
-starboost review ./examples/my_task
+```text
+starboost [no task]> load_task ./examples/my_task --executor-model gpt-5.5
 ```
 
-Edit the generated `review.md`, then submit it:
+The task is now current, so the common loop is short:
 
-```bash
-starboost submit ./examples/my_task
+```text
+starboost [my_task]> review
+starboost [my_task]> submit
+starboost [my_task]> status
 ```
+
+Direct commands also remember the current task after `load_task`, so `starboost review` and `starboost submit` can omit the package path.
 
 The minimum weakness count is only a lower bound. Experts can always write more weaknesses when they believe the result still needs work. When the minimum has decayed to zero, submitting zero weaknesses terminates the loop and writes a zip archive under `exports/`; submitting one or more weaknesses continues to the next round.
