@@ -1,0 +1,29 @@
+{
+  "review_id": "r001_review",
+  "created_at": "2026-05-13T02:51:15Z",
+  "strengths": [
+    "The memo clearly identifies the policy controls that matter before the vendor upload can proceed.",
+    "The recommendation is practical and appropriately grounded in the supplied scenario instead of external legal citations."
+  ],
+  "weaknesses": [
+    "The Required Safeguards section should be more execution-ready by assigning each safeguard to a concrete owner such as the business owner, data steward, vendor manager, or legal/privacy reviewer.",
+    "The memo should distinguish pre-approval blockers from post-approval operating controls so the business owner can see what must happen before any upload.",
+    "The Open Questions section should include a sharper question about whether the vendor portal terms permit retention, secondary use, or model training by default."
+  ],
+  "scores": {
+    "latest_deliverables_satisfaction": {
+      "value": 4.0,
+      "max": 5.0
+    },
+    "latest_deliverables_aligns_user_score": {
+      "value": 7.0,
+      "max": 10.0
+    }
+  },
+  "notes": "> Optional notes for yourself or future audit context.\n\nSimulated reviewer note for the checkpoint example. This review intentionally leaves actionable weaknesses so the package demonstrates resume-and-continue behavior.",
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warnings": []
+  }
+}

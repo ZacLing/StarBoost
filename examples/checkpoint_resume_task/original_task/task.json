@@ -1,0 +1,18 @@
+{
+  "task_id": "checkpoint_resume_task",
+  "prompt_file": "prompt.md",
+  "rubrics_file": "rubrics.json",
+  "materials_dir": "materials",
+  "allow_web_search": false,
+  "starboost": {
+    "review_policy": {
+      "min_strengths": 2,
+      "initial_min_weaknesses": 3,
+      "weakness_decrement_per_round": 1,
+      "allow_zero_weakness_termination": true
+    },
+    "executor": {
+      "timeout_seconds": 2400
+    }
+  }
+}

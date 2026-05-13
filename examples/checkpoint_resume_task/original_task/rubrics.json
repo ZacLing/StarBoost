@@ -1,0 +1,26 @@
+[
+  {
+    "id": "R001",
+    "question": "Does the deliverable include outputs/vendor_data_sharing_risk_memo.md?",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R002",
+    "question": "Does the memo include the labeled sections Issue, Key Facts, Risk Analysis, Required Safeguards, Open Questions, and Recommendation?",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R003",
+    "question": "Does the memo discuss data minimization, retention/deletion, access limitation, and restrictions on vendor model training?",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R004",
+    "question": "Does the memo avoid jurisdiction-specific legal citations and keep the analysis grounded in the provided scenario and policy excerpts?",
+    "expected": true,
+    "fail_fast": true
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "root": "<PACKAGE_ROOT>/boost_runs/rounds/v000_cold_start/workspace/outputs",
+  "files": [
+    {
+      "path": "vendor_data_sharing_risk_memo.md",
+      "bytes": 4188,
+      "sha256": "4abda5d78ddfdcc1c9b763a4cec0209bf63a373a720e9379ec66f01dcde4a4cf"
+    }
+  ],
+  "file_count": 1,
+  "created_at": "2026-05-13T02:50:16Z"
+}

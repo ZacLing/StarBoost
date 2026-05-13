@@ -61,9 +61,11 @@ def load_or_initialize_state(spec: TaskSpec, overrides: RuntimeOverrides) -> Dic
         state = load_state(spec.package_root)
         state["config"] = apply_overrides(state.get("config", {}), overrides)
         recover_rounds_from_manifests(spec.package_root, state)
+        rebase_runtime_paths(spec.package_root, state)
         return state
     state = initialize_state(spec, overrides)
     recover_rounds_from_manifests(spec.package_root, state)
+    rebase_runtime_paths(spec.package_root, state)
     return state
 
 
@@ -97,3 +99,23 @@ def recover_rounds_from_manifests(package_root: Path, state: Dict[str, Any]) -> 
     state["latest_deliverable_round"] = latest.get("round_id")
     state["status"] = "awaiting_review"
     state["last_error"] = None
+
+
+def rebase_runtime_paths(package_root: Path, state: Dict[str, Any]) -> None:
+    for round_record in state.get("rounds") or []:
+        round_id = round_record.get("round_id")
+        if not round_id:
+            continue
+        round_root = package_root / "boost_runs" / "rounds" / str(round_id)
+        workspace = round_root / "workspace"
+        logs = round_root / "logs"
+        outputs = workspace / "outputs"
+        if "workspace" in round_record:
+            round_record["workspace"] = str(workspace)
+        if "outputs" in round_record:
+            round_record["outputs"] = str(outputs)
+        if "logs" in round_record:
+            round_record["logs"] = str(logs)
+        manifest = round_record.get("artifact_manifest")
+        if isinstance(manifest, dict) and "root" in manifest:
+            manifest["root"] = str(outputs)

@@ -7,6 +7,13 @@ boost_runs/
 exports/
 starboost.json
 
+# This example intentionally ships with a resumable StarBoost checkpoint.
+!examples/checkpoint_resume_task/starboost.json
+!examples/checkpoint_resume_task/boost_runs/
+!examples/checkpoint_resume_task/boost_runs/**
+examples/checkpoint_resume_task/boost_runs/**/codex_home/
+examples/checkpoint_resume_task/boost_runs/**/codex_home/**
+
 # Python caches and build outputs.
 __pycache__/
 *.py[cod]
@@ -28,4 +35,3 @@ venv/
 .DS_Store
 .idea/
 .vscode/
-

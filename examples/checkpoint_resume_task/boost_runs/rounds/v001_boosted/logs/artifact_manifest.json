@@ -1,0 +1,12 @@
+{
+  "root": "<PACKAGE_ROOT>/boost_runs/rounds/v001_boosted/workspace/outputs",
+  "files": [
+    {
+      "path": "vendor_data_sharing_risk_memo.md",
+      "bytes": 5638,
+      "sha256": "140b29e2320dc1359106634cbfafafe695c410105f6f57de92d956420bef6dd0"
+    }
+  ],
+  "file_count": 1,
+  "created_at": "2026-05-13T02:51:55Z"
+}

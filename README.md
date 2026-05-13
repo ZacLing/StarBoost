@@ -99,6 +99,7 @@ Bundled examples include:
 | `examples/code_cli_task` | A Python standard-library CLI deliverable with tests. | `min_strengths=2`, `initial_min_weaknesses=4`, decrement `2`; code review starts stricter but tapers faster. | `timeout_seconds=3600`. |
 | `examples/biostats_csv_task` | A biostatistics summary CSV generated from trial measurements. | `min_strengths=1`, `initial_min_weaknesses=3`, decrement `1`; focused review for numeric correctness and formatting. | `timeout_seconds=1800`. |
 | `examples/legal_risk_memo_task` | A legal-style vendor data-sharing risk memo grounded in supplied policy excerpts. | `min_strengths=3`, `initial_min_weaknesses=5`, decrement `1`; richer qualitative review for nuanced writing. | `timeout_seconds=2400`. |
+| `examples/checkpoint_resume_task` | A pre-run checkpoint example with real `gpt-5.5` Docker traces. It has completed cold start plus one boost round and is waiting for the next review. | `min_strengths=2`, current `min_weaknesses=2`; demonstrates resume-and-continue behavior. | `timeout_seconds=2400`; generated with Docker + `gpt-5.5`. |
 
 By default StarBoost uses Docker isolation for executor runs. See [Docker And Auth](docs/docker_and_auth.md) for the image and credential expectations.
 
