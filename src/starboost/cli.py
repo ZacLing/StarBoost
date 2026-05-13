@@ -119,6 +119,41 @@ def _maybe_open_export_parent(result: dict[str, Any], no_open: bool) -> None:
     _maybe_open(str(Path(str(path)).parent), no_open)
 
 
+def _maybe_close_finder_window(path: Optional[str], no_open: bool) -> None:
+    if no_open or not path or sys.platform != "darwin":
+        return
+    target = str(Path(path).expanduser().resolve())
+    script = """
+on normalizePath(rawPath)
+    if rawPath ends with "/" then
+        return text 1 thru -2 of rawPath
+    end if
+    return rawPath
+end normalizePath
+
+on run argv
+    set wantedPath to my normalizePath(item 1 of argv)
+    tell application "Finder"
+        repeat with finderWindow in windows
+            try
+                set windowPath to my normalizePath(POSIX path of (target of finderWindow as alias))
+                if windowPath is wantedPath then close finderWindow
+            end try
+        end repeat
+    end tell
+end run
+"""
+    try:
+        subprocess.run(
+            ["osascript", "-e", script, target],
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except OSError:
+        return
+
+
 def _package_arg(args: argparse.Namespace) -> Optional[str]:
     return getattr(args, "package", None)
 
@@ -163,6 +198,8 @@ def cmd_review(args: argparse.Namespace) -> int:
 def cmd_submit(args: argparse.Namespace) -> int:
     review_path = Path(args.review_path) if getattr(args, "review_path", None) else None
     session = _session(args)
+    previous_outputs = session.status().get("latest_outputs")
+    _maybe_close_finder_window(str(previous_outputs or ""), args.no_open)
     result = _run_with_optional_progress(
         session.submit_review_will_run_executor(review_path),
         "Review accepted for iteration. Executor agent is revising the deliverables from your comments; please wait a few minutes.",
@@ -319,6 +356,8 @@ class StarBoostShell(cmd.Cmd):
             args = self._parse(arg, "submit", add_submit_options=True)
             session, _ = self._session_for(args)
             review_path = Path(args.review_path) if getattr(args, "review_path", None) else None
+            previous_outputs = session.status().get("latest_outputs")
+            _maybe_close_finder_window(str(previous_outputs or ""), args.no_open)
             result = _run_with_optional_progress(
                 session.submit_review_will_run_executor(review_path),
                 "Review accepted for iteration. Executor agent is revising the deliverables from your comments; please wait a few minutes.",

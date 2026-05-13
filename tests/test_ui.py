@@ -12,7 +12,13 @@ def test_panels_show_path_placeholders_and_clickable_full_path_lines() -> None:
     assert "..." not in review_panel
     assert "Directory" in export_panel
     assert "Path               <Path>" in export_panel
-    assert f"Path: {long_path}" in export_panel
-    assert f"Review file: {long_path}" in review_panel
-    assert f"Deliverables: {long_path}" in review_panel
-    assert f"Outputs: {long_path}" in status_panel
+    assert "Full paths:" in export_panel
+    assert "  Path:\n" in export_panel
+    assert long_path in export_panel
+    assert "  Review file:\n" in review_panel
+    assert "  Deliverables:\n" in review_panel
+    assert long_path in review_panel
+    assert "  Outputs:\n" in status_panel
+    assert long_path in status_panel
+    assert ">> Next:" in review_panel
+    assert review_panel.rstrip().endswith(">> Next: edit the review file, then type `submit`.")

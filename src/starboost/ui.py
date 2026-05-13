@@ -65,33 +65,51 @@ def path_kv(label: str, value: Any) -> str:
     return kv(label, f"<{label}>")
 
 
-def append_paths(panel_text: str, rows: Iterable[str]) -> str:
-    paths: List[str] = []
+def _path_entries(rows: Iterable[str]) -> List[tuple[str, str]]:
+    entries: List[tuple[str, str]] = []
     for row in rows:
         if not isinstance(row, str) or " " not in row:
             continue
         label = row[:18].strip().lower()
         value = row[19:].strip() if len(row) > 19 else ""
         if label in PATH_KEYS and value and not (value.startswith("<") and value.endswith(">")):
-            paths.append(f"{row[:18].strip()}: {value}")
-    if not paths:
+            entries.append((row[:18].strip(), value))
+    return entries
+
+
+def append_paths(panel_text: str, rows: Iterable[str]) -> str:
+    entries = _path_entries(rows)
+    if not entries:
         return panel_text
-    return panel_text + "\n\nPaths:\n" + "\n".join(paths)
+    lines = ["", "Full paths:"]
+    for label, value in entries:
+        lines.extend([f"  {label}:", f"  {value}"])
+    return panel_text + "\n".join(lines)
+
+
+def append_next(text: str, action: str) -> str:
+    if not action:
+        return text
+    return f"{text}\n\n>> Next: {action}"
+
+
+def append_paths_and_next(panel_text: str, rows: Iterable[str], action: str) -> str:
+    return append_next(append_paths(panel_text, rows), action)
 
 
 def next_action(status: Optional[Dict[str, Any]]) -> str:
     if not status:
-        return "Run `load_task <path>` to start."
+        return "type `load_task <path>` to start."
     state = status.get("status")
     if state == "awaiting_review":
-        return "Run `review`, edit the review file, then run `submit`."
+        return "type `review`, edit the review file, then type `submit`."
     if state == "terminated":
-        return "Run `export` if you want a fresh archive."
+        return "type `export` if you want a fresh archive."
     if state == "executor_failed":
-        return "Fix the executor issue, then rerun the last command."
+        return "fix the executor issue, then rerun the last command."
     if state and str(state).startswith("running"):
-        return "Wait for the current run to finish."
-    return "Run `status` to inspect the task."
+        return "wait for the current run to finish."
+    return "type `status` to inspect the task."
 
 
 def render_home(record: Optional[Dict[str, Any]], status: Optional[Dict[str, Any]]) -> str:
@@ -107,10 +125,8 @@ def render_home(record: Optional[Dict[str, Any]], status: Optional[Dict[str, Any
         "  status               show current task metadata",
         "  home                 show this dashboard",
         "  exit                 leave StarBoost",
-        "",
-        kv("Next", next_action(status)),
     ]
-    return panel("StarBoost workspace", rows)
+    return append_next(panel("StarBoost workspace", rows), next_action(status))
 
 
 def render_status(status: Dict[str, Any], package_path: Optional[Path] = None, title: str = "Task dashboard") -> str:
@@ -132,7 +148,6 @@ def render_status(status: Dict[str, Any], package_path: Optional[Path] = None, t
     exports = status.get("exports") or []
     if exports:
         rows.append(path_kv("Latest export", exports[-1].get("path")))
-    rows.extend(["", kv("Next", next_action(status))])
     path_rows = []
     if package_path:
         path_rows.append(kv("Package", package_path))
@@ -140,23 +155,22 @@ def render_status(status: Dict[str, Any], package_path: Optional[Path] = None, t
         path_rows.append(kv("Outputs", status.get("latest_outputs")))
     if exports:
         path_rows.append(kv("Latest export", exports[-1].get("path")))
-    return append_paths(panel(title, rows), path_rows)
+    return append_paths_and_next(panel(title, rows), path_rows, next_action(status))
 
 
 def render_review(info: Dict[str, Any]) -> str:
     rows = [
         path_kv("Review file", info.get("review_path")),
         path_kv("Deliverables", info.get("deliverables_path")),
-        "",
-        "Edit the review file, then run `submit`.",
     ]
     path_rows = [
         kv("Review file", info.get("review_path")),
         kv("Deliverables", info.get("deliverables_path")),
     ]
-    return append_paths(
+    return append_paths_and_next(
         panel("Review workspace", rows),
         path_rows,
+        "edit the review file, then type `submit`.",
     )
 
 
@@ -180,7 +194,13 @@ def render_submit(result: Dict[str, Any]) -> str:
         rows.append(path_kv("Export", result["export"].get("path")))
     if result.get("review_path"):
         rows.append(path_kv("Review file", result.get("review_path")))
-    rows.extend(["", kv("Next", "Run `review` for the new output." if result.get("accepted") and not result.get("terminated") else "Fix the review file and run `submit` again." if not result.get("accepted") else "The loop is complete.")])
+    action = (
+        "type `review` for the new output."
+        if result.get("accepted") and not result.get("terminated")
+        else "fix the review file, then type `submit` again."
+        if not result.get("accepted")
+        else "the loop is complete; type `export` to package the trace."
+    )
     path_rows = []
     if result.get("round"):
         path_rows.append(kv("Outputs", result["round"].get("outputs")))
@@ -188,7 +208,7 @@ def render_submit(result: Dict[str, Any]) -> str:
         path_rows.append(kv("Export", result["export"].get("path")))
     if result.get("review_path"):
         path_rows.append(kv("Review file", result.get("review_path")))
-    return append_paths(panel("Submit result", rows), path_rows)
+    return append_paths_and_next(panel("Submit result", rows), path_rows, action)
 
 
 def render_validation(result: Dict[str, Any]) -> str:
@@ -207,7 +227,7 @@ def render_export(result: Dict[str, Any]) -> str:
     directory = Path(str(path)).parent if path else None
     rows = [path_kv("Path", path), path_kv("Directory", directory), kv("Bytes", result.get("bytes"))]
     path_rows = [kv("Path", path), kv("Directory", directory)]
-    return append_paths(panel("Export", rows), path_rows)
+    return append_paths_and_next(panel("Export", rows), path_rows, "the export folder has been opened if your system allows it.")
 
 
 def render_message(title: str, *lines: Any) -> str:

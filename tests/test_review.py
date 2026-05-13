@@ -109,6 +109,7 @@ def test_review_template_has_clear_visual_fill_areas(tmp_path: Path) -> None:
     review.parent.mkdir()
     create_review_template(review, "demo", "v000_cold_start", tmp_path / "outputs", 3, 2)
     text = review.read_text(encoding="utf-8")
+    assert text.startswith("# StarBoost Review - Reviewing `v000_cold_start`")
     assert "| Minimum strengths required | `3` |" in text
     assert "| Minimum weaknesses required | `2` |" in text
     assert text.count("---") >= 5

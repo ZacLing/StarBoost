@@ -35,7 +35,7 @@ def create_review_template(
 ) -> None:
     strengths = "\n".join("- " for _ in range(max(min_strengths, 1)))
     weaknesses = "\n".join("- " for _ in range(min_weaknesses))
-    template = f"""# StarBoost Review
+    template = f"""# StarBoost Review - Reviewing `{round_id}`
 
 ## Task Information
 
