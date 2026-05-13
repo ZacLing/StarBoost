@@ -30,6 +30,9 @@ class StarBoostSession:
         errors = validate_task_spec(self.spec)
         return {"valid": not errors, "errors": errors, "task_id": self.spec.task_id}
 
+    def load_task_will_run_executor(self) -> bool:
+        return not bool(self.state.get("rounds"))
+
     def load_task(self) -> Dict[str, Any]:
         validation = self.validate()
         if not validation["valid"]:
@@ -86,6 +89,34 @@ class StarBoostSession:
         self.state["status"] = "awaiting_review"
         save_state(self.package_root, self.state)
         return {"review_path": str(review_path), "deliverables_path": current["outputs"]}
+
+    def submit_review_will_run_executor(self, review_path: Optional[Path] = None) -> bool:
+        current = latest_round(self.state)
+        if not current:
+            return False
+        index = int(self.state.get("next_review_index") or 1)
+        if review_path is None:
+            review_path = review_dir(self.package_root, index) / "review.md"
+        if not review_path.exists():
+            return False
+
+        parsed = parse_review(review_path)
+        validation = validate_review(
+            parsed,
+            int(self.state.get("current_min_strengths") or 0),
+            int(self.state.get("current_min_weaknesses") or 0),
+        )
+        if not validation["valid"]:
+            return False
+
+        policy = self.state["config"].get("review_policy", {})
+        current_min_weaknesses = int(self.state.get("current_min_weaknesses") or 0)
+        terminal = (
+            current_min_weaknesses == 0
+            and len(parsed.weaknesses) == 0
+            and policy.get("allow_zero_weakness_termination", True)
+        )
+        return not terminal
 
     def submit_review(self, review_path: Optional[Path] = None) -> Dict[str, Any]:
         current = latest_round(self.state)

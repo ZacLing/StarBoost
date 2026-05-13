@@ -6,8 +6,11 @@ import json
 import shlex
 import subprocess
 import sys
+import threading
+import time
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Callable, Iterator, Optional, TypeVar
 
 from .config import RuntimeOverrides
 from .context import (
@@ -28,6 +31,48 @@ from .ui import (
     render_submit,
     render_validation,
 )
+
+
+T = TypeVar("T")
+
+
+@contextmanager
+def _progress(message: str) -> Iterator[None]:
+    print(message, file=sys.stderr, flush=True)
+    if not sys.stderr.isatty():
+        yield
+        return
+
+    stop = threading.Event()
+
+    def animate() -> None:
+        frames = "|/-\\"
+        index = 0
+        started = time.monotonic()
+        while not stop.is_set():
+            elapsed = int(time.monotonic() - started)
+            frame = frames[index % len(frames)]
+            sys.stderr.write(f"\r{frame} Working... {elapsed}s elapsed. Please wait.")
+            sys.stderr.flush()
+            index += 1
+            stop.wait(0.2)
+        sys.stderr.write("\r" + " " * 78 + "\r")
+        sys.stderr.flush()
+
+    thread = threading.Thread(target=animate, daemon=True)
+    thread.start()
+    try:
+        yield
+    finally:
+        stop.set()
+        thread.join(timeout=1)
+
+
+def _run_with_optional_progress(should_show: bool, message: str, operation: Callable[[], T]) -> T:
+    if not should_show:
+        return operation()
+    with _progress(message):
+        return operation()
 
 
 def _add_runtime_options(parser: argparse.ArgumentParser) -> None:
@@ -85,7 +130,11 @@ def cmd_validate(args: argparse.Namespace) -> int:
 def cmd_load_task(args: argparse.Namespace) -> int:
     package = resolve_package_path(_package_arg(args), allow_discovery=False)
     session = StarBoostSession(package, _overrides(args))
-    result = session.load_task()
+    result = _run_with_optional_progress(
+        session.load_task_will_run_executor(),
+        "No prior deliverable found. Executor agent is creating the cold-start deliverable; this can take a few minutes.",
+        session.load_task,
+    )
     set_current_task(package)
     _print_json(result)
     return 0
@@ -106,7 +155,12 @@ def cmd_review(args: argparse.Namespace) -> int:
 
 def cmd_submit(args: argparse.Namespace) -> int:
     review_path = Path(args.review_path) if getattr(args, "review_path", None) else None
-    result = _session(args).submit_review(review_path)
+    session = _session(args)
+    result = _run_with_optional_progress(
+        session.submit_review_will_run_executor(review_path),
+        "Review accepted for iteration. Executor agent is revising the deliverables from your comments; please wait a few minutes.",
+        lambda: session.submit_review(review_path),
+    )
     _print_json(result)
     return 0 if result.get("accepted") else 2
 
@@ -196,7 +250,11 @@ class StarBoostShell(cmd.Cmd):
             args = self._parse(arg, "load_task", package_optional=False)
             package = resolve_package_path(_package_arg(args), allow_discovery=False)
             session = StarBoostSession(package, _overrides(args))
-            status = session.load_task()
+            status = _run_with_optional_progress(
+                session.load_task_will_run_executor(),
+                "No prior deliverable found. Executor agent is creating the cold-start deliverable; this can take a few minutes.",
+                session.load_task,
+            )
             set_current_task(package)
             print(render_status(status, package, title="Task loaded"))
             self._refresh_prompt()
@@ -249,7 +307,11 @@ class StarBoostShell(cmd.Cmd):
             args = self._parse(arg, "submit", add_submit_options=True)
             session, _ = self._session_for(args)
             review_path = Path(args.review_path) if getattr(args, "review_path", None) else None
-            result = session.submit_review(review_path)
+            result = _run_with_optional_progress(
+                session.submit_review_will_run_executor(review_path),
+                "Review accepted for iteration. Executor agent is revising the deliverables from your comments; please wait a few minutes.",
+                lambda: session.submit_review(review_path),
+            )
             print(render_submit(result))
             self._refresh_prompt()
         except SystemExit:

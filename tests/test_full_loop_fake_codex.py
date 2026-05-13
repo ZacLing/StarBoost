@@ -84,7 +84,9 @@ def test_full_loop_with_fake_codex(tmp_path: Path) -> None:
     package = _package(tmp_path, fake)
     session = StarBoostSession(package, RuntimeOverrides(executor_backend="local", codex_bin=str(fake), no_open=True))
 
+    assert session.load_task_will_run_executor() is True
     status = session.load_task()
+    assert session.load_task_will_run_executor() is False
     assert status["round_count"] == 1
     cold_output = package / "boost_runs" / "rounds" / "v000_cold_start" / "workspace" / "outputs" / "answer.md"
     assert cold_output.read_text(encoding="utf-8") == "cold deliverable"
@@ -108,9 +110,10 @@ def test_full_loop_with_fake_codex(tmp_path: Path) -> None:
 (5)/10
 
 ## Notes
-""",
+        """,
         encoding="utf-8",
     )
+    assert session.submit_review_will_run_executor() is True
     result = session.submit_review()
     assert result["accepted"] is True
     assert result["terminated"] is False
@@ -143,9 +146,10 @@ def test_full_loop_with_fake_codex(tmp_path: Path) -> None:
 (9)/10
 
 ## Notes
-""",
+        """,
         encoding="utf-8",
     )
+    assert session.submit_review_will_run_executor() is False
     terminal = session.submit_review()
     assert terminal["accepted"] is True
     assert terminal["terminated"] is True

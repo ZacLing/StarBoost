@@ -56,6 +56,8 @@ Useful options:
 
 `load_task` creates runtime folders, automatically runs the initial executor if no prior deliverable exists, and makes the package the current task. `review` creates a template for the latest deliverable. `submit` validates that template and either launches the next executor round or terminates and exports the package if the zero-weakness termination rule is met.
 
+When `load_task` needs to run a cold-start executor, or `submit` needs to launch the next boosted executor, the CLI prints a progress message and spinner. Existing checkpoint packages load quickly without starting a new executor.
+
 `export` is intended for completed packages. By default it only runs after the task status is `terminated`, which prevents an in-progress review loop from being mistaken for a final archive. If you intentionally need a mid-process archive, use `starboost export --force`; treat that output as a snapshot rather than the final reviewed package.
 
 In interactive mode, StarBoost prints compact panels instead of raw JSON so the workspace is easier to scan. Direct commands keep JSON-style output for scripts and automation.
