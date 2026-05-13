@@ -1,8 +1,10 @@
-# StarBoost
+# StarBoost ✨
 
 **Expert-in-the-loop annotation and improvement workspace for AI-generated deliverables.**
 
 [English](README.md) | [中文](README.zh.md)
+
+---
 
 StarBoost helps domain experts turn their judgment into structured, repeatable annotation data. You give StarBoost a task package, let an AI assistant produce an initial answer, then review that answer the way an expert would: mark what is strong, identify concrete weaknesses, and optionally score the work.
 
@@ -10,17 +12,17 @@ After each review, the AI produces a new version of the work, and the expert can
 
 In practice, you use StarBoost as an expert-in-the-loop workspace: load a task, inspect the AI's output, write a structured review, submit it, and repeat until there are no remaining weaknesses worth sending into another improvement round.
 
-## What It Helps You Do
+## What It Helps You Do 🚀
 
-| Expert task | How StarBoost helps |
+|  | Expert task | How StarBoost helps |
 | --- | --- |
-| Review an AI deliverable | Opens a structured review template for strengths, weaknesses, notes, and scores. |
-| Turn feedback into data | Stores each review as machine-readable metadata. |
-| Improve an answer round by round | Sends the accepted weaknesses into the next AI production round. |
-| Preserve the full process | Keeps outputs, traces, timing, review files, and export archives. |
-| Keep task secrets hidden | Executors receive visible inputs only; rubrics and references stay out of the workspace. |
+| 📝 | Review an AI deliverable | Opens a structured review template for strengths, weaknesses, notes, and scores. |
+| 🧱 | Turn feedback into data | Stores each review as machine-readable metadata. |
+| 🔁 | Improve an answer round by round | Sends the accepted weaknesses into the next AI production round. |
+| 📦 | Preserve the full process | Keeps outputs, traces, timing, review files, and export archives. |
+| 🔒 | Keep task secrets hidden | Executors receive visible inputs only; rubrics and references stay out of the workspace. |
 
-## Workflow
+## Workflow 🧭
 
 ```text
 Task package
@@ -31,7 +33,7 @@ Task package
   -> Export the full annotation record
 ```
 
-## Workspace UI
+## Workspace UI 🖥️
 
 When you run `starboost`, the interactive workspace opens with a dashboard panel. It shows the current task, state, rounds, review progress, weakness minimum, key paths, and the suggested next action.
 
@@ -54,7 +56,7 @@ When you run `starboost`, the interactive workspace opens with a dashboard panel
 +----------------------------------------------------------------------------------+
 ```
 
-## Quick Start
+## Quick Start ⚡
 
 ### Option A: Let Codex Install It For You
 
@@ -123,7 +125,7 @@ Bundled examples include:
 
 By default StarBoost uses Docker isolation for executor runs. See [Docker And Auth](docs/docker_and_auth.md) for image, credential, and `--docker-image` details.
 
-## Task Packages
+## Task Packages 🗂️
 
 A StarBoost package should contain:
 
@@ -148,7 +150,7 @@ my_task_package/
 
 Executors never receive `rubrics.json` or `human_reference.json`; they only receive the prompt and visible materials copied into a clean workspace.
 
-## Documentation
+## Documentation 📚
 
 | Topic | English | Chinese |
 | --- | --- | --- |
