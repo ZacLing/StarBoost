@@ -5,6 +5,7 @@ from pathlib import Path
 from starboost.cli import main
 from starboost.cli import StarBoostShell
 from starboost.context import get_current_task_path
+from starboost.context import resolve_package_path
 
 
 def _fake_codex(tmp_path: Path) -> Path:
@@ -80,3 +81,11 @@ def test_shell_home_renders_dashboard(tmp_path: Path, monkeypatch, capsys) -> No
     assert "StarBoost workspace" in output
     assert "Current task" in output
     assert "Common commands" in output
+
+
+def test_resolve_package_path_tolerates_repeated_cwd_name(tmp_path: Path, monkeypatch) -> None:
+    root = tmp_path / "StarBoost"
+    package = root / "examples" / "simple_memo_task"
+    package.mkdir(parents=True)
+    monkeypatch.chdir(root)
+    assert resolve_package_path("StarBoost/examples/simple_memo_task") == package.resolve()

@@ -83,7 +83,10 @@ def _resolve_original_task_dir(package_root: Path) -> Path:
         return package_root / "original_task"
     if (package_root / "task.json").exists():
         return package_root
-    raise TaskPackageError("Expected task.json at package root or original_task/task.json")
+    raise TaskPackageError(
+        "Expected task.json at package root or original_task/task.json. "
+        f"Checked package path: {package_root}"
+    )
 
 
 def _default_visible_inputs(task_dir: Path, prompt_path: Path, rubrics_path: Path, human_reference_path: Optional[Path]) -> List[VisibleInput]:
@@ -196,4 +199,3 @@ def validate_task_spec(spec: TaskSpec) -> List[str]:
         if not rubric.fail_fast:
             errors.append(f"Rubric {rubric.rubric_id} is not fail_fast; StarBoost requires fail-fast rubrics")
     return errors
-

@@ -91,7 +91,12 @@ def discover_package_from_cwd(start: Optional[Path] = None) -> Optional[Path]:
 
 def resolve_package_path(package_arg: Optional[str], *, allow_discovery: bool = True) -> Path:
     if package_arg:
-        return Path(package_arg).expanduser().resolve()
+        path = Path(package_arg).expanduser()
+        if not path.exists() and path.parts and path.parts[0] == Path.cwd().name:
+            without_cwd_name = Path(*path.parts[1:]) if len(path.parts) > 1 else Path(".")
+            if without_cwd_name.exists():
+                return without_cwd_name.resolve()
+        return path.resolve()
     current = get_current_task_path()
     if current:
         return current
@@ -100,4 +105,3 @@ def resolve_package_path(package_arg: Optional[str], *, allow_discovery: bool = 
         if discovered:
             return discovered
     raise CurrentTaskError("No current task. Run `load_task <path>` first, or pass a package path explicitly.")
-
