@@ -15,7 +15,7 @@ In practice, you use StarBoost as an expert-in-the-loop workspace: load a task, 
 ## What It Helps You Do 🚀
 
 |  | Expert task | How StarBoost helps |
-| --- | --- |
+| --- | --- | --- |
 | 📝 | Review an AI deliverable | Opens a structured review template for strengths, weaknesses, notes, and scores. |
 | 🧱 | Turn feedback into data | Stores each review as machine-readable metadata. |
 | 🔁 | Improve an answer round by round | Sends the accepted weaknesses into the next AI production round. |
