@@ -47,10 +47,11 @@ starboost validate examples/simple_memo_task
 starboost validate examples/code_cli_task
 starboost validate examples/biostats_csv_task
 starboost validate examples/legal_risk_memo_task
+starboost validate examples/chinese_notice_task
 starboost validate examples/checkpoint_resume_task
 ```
 
-这些示例刻意使用了不同的 review policy。例如 `simple_memo_task` 是最低 1 条 weakness 的轻量示例，`code_cli_task` 起始要求 4 条 weakness 且每轮递减 2 条，`legal_risk_memo_task` 使用更接近默认设置的 5 条 weakness 质性审阅流程。`checkpoint_resume_task` 则不同：它已经包含一次真实 Docker + `gpt-5.5` cold start 和一轮 boosted 结果，用户可以加载后直接从下一次 review 继续。
+这些示例刻意使用了不同的 review policy。例如 `simple_memo_task` 是最低 1 条 weakness 的轻量示例，`code_cli_task` 起始要求 4 条 weakness 且每轮递减 2 条，`legal_risk_memo_task` 使用更接近默认设置的 5 条 weakness 质性审阅流程，`chinese_notice_task` 展示中文任务内容但路径和文件名仍保持英文。`checkpoint_resume_task` 则不同：它已经包含一次真实 Docker + `gpt-5.5` cold start 和一轮 boosted 结果，用户可以加载后直接从下一次 review 继续。
 
 启动交互式工作台：
 

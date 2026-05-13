@@ -113,6 +113,17 @@ starboost status
 starboost validate examples/simple_memo_task
 ```
 
+内置示例包括：
+
+| Package | 示例重点 | Review policy | Executor 配置 |
+| --- | --- | --- | --- |
+| `examples/simple_memo_task` | 根据项目 notes 写一份简短 implementation memo。 | `min_strengths=1`，`initial_min_weaknesses=1`，每轮递减 `1`；轻量 one-issue demo。 | 默认配置。 |
+| `examples/code_cli_task` | 生成一个只使用 Python 标准库的 CLI 工具，并包含 README 和测试。 | `min_strengths=2`，`initial_min_weaknesses=4`，每轮递减 `2`；代码任务审阅更严格但收敛更快。 | `timeout_seconds=3600`。 |
+| `examples/biostats_csv_task` | 根据 trial measurements 生成生物统计 summary CSV。 | `min_strengths=1`，`initial_min_weaknesses=3`，每轮递减 `1`；强调数值正确性和格式。 | `timeout_seconds=1800`。 |
+| `examples/legal_risk_memo_task` | 根据英文 policy excerpts 写 vendor data-sharing legal-style risk memo。 | `min_strengths=3`，`initial_min_weaknesses=5`，每轮递减 `1`；适合质性文档审阅。 | `timeout_seconds=2400`。 |
+| `examples/chinese_notice_task` | 中文内容示例：写社区健康服务通知；路径和文件名仍保持英文。 | `min_strengths=2`，`initial_min_weaknesses=3`，每轮递减 `1`；展示中文任务与多语言 review。 | `timeout_seconds=1800`。 |
+| `examples/checkpoint_resume_task` | 已预跑的 checkpoint 示例，包含真实 `gpt-5.5` Docker trace，可直接继续下一轮 review。 | `min_strengths=2`，当前 `min_weaknesses=2`；展示断点续做。 | `timeout_seconds=2400`；由 Docker + `gpt-5.5` 生成。 |
+
 StarBoost 默认使用 Docker 隔离执行 AI 产出流程。镜像和认证配置见 [Docker 与认证](docs/zh/docker_and_auth.md)。
 
 ## 任务包结构 🗂️

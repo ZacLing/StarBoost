@@ -45,10 +45,11 @@ starboost validate examples/simple_memo_task
 starboost validate examples/code_cli_task
 starboost validate examples/biostats_csv_task
 starboost validate examples/legal_risk_memo_task
+starboost validate examples/chinese_notice_task
 starboost validate examples/checkpoint_resume_task
 ```
 
-The examples intentionally use different review policies. For instance, `simple_memo_task` is a one-weakness lightweight demo, `code_cli_task` starts with four required weaknesses and decrements by two per accepted round, and `legal_risk_memo_task` uses the default-style five-weakness qualitative review loop. `checkpoint_resume_task` is different: it already contains a real Docker + `gpt-5.5` cold start and one boosted round, so you can load it and continue from the next review.
+The examples intentionally use different review policies. For instance, `simple_memo_task` is a one-weakness lightweight demo, `code_cli_task` starts with four required weaknesses and decrements by two per accepted round, `legal_risk_memo_task` uses the default-style five-weakness qualitative review loop, and `chinese_notice_task` demonstrates Chinese task content with English paths and filenames. `checkpoint_resume_task` is different: it already contains a real Docker + `gpt-5.5` cold start and one boosted round, so you can load it and continue from the next review.
 
 Start the interactive workspace:
 

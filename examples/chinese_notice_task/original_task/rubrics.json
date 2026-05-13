@@ -1,0 +1,26 @@
+[
+  {
+    "id": "R001",
+    "question": "是否生成了 outputs/community_health_notice.md？",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R002",
+    "question": "通知是否包含活动概览、服务对象、服务内容、报名与到场方式、注意事项、联系方式这六个小标题？",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R003",
+    "question": "通知是否准确包含日期 2026 年 6 月 15 日、时间 9:00 至 11:30、地点春和社区党群服务站一楼活动室、预约电话 010-5555-2188？",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R004",
+    "question": "通知是否避免编造材料中没有的信息，并对空腹要求等不确定事项使用审慎措辞？",
+    "expected": true,
+    "fail_fast": true
+  }
+]
