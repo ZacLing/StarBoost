@@ -12,6 +12,14 @@ python -m pip install --upgrade pip
 pip install -e ".[dev]"
 ```
 
+第一次真实运行前，先构建默认 Docker executor 镜像：
+
+```bash
+docker build -t starboost-codex:latest -f docker/codex-boost.Dockerfile .
+```
+
+StarBoost 默认使用 Docker，并且会查找 `starboost-codex:latest`，除非你显式传入 `--docker-image <name>`。仓库自带的 Dockerfile 会安装 Codex CLI、Python 和常见 shell 工具。如果这个镜像不存在，`load_task` 或 `submit` 在启动 executor round 时可能会遇到 Docker 的 “No such image” 错误。
+
 校验一个任务包：
 
 ```bash

@@ -63,6 +63,10 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -e ".[dev]"
 
+# 使用仓库自带的 Dockerfile 构建默认 executor 镜像。
+# 除非显式传入 --docker-image，否则 StarBoost 会查找这个镜像名。
+docker build -t starboost-codex:latest -f docker/codex-boost.Dockerfile .
+
 # 启动 StarBoost 工作台。
 starboost
 
@@ -75,6 +79,8 @@ starboost [my_task]> submit
 starboost [my_task]> status
 starboost [my_task]> home
 ```
+
+StarBoost 默认使用 Docker。第一次真实运行 executor 前，请先构建 `starboost-codex:latest`，否则 Docker 会提示找不到镜像。仓库自带的 Dockerfile 会安装 Codex CLI、Python 和常见 shell 工具。之后 StarBoost 会把每轮 executor 放进隔离容器中运行，只挂载当前 round 的 workspace 和本轮独立的 `CODEX_HOME`。
 
 也可以使用直接命令。`load_task` 之后，StarBoost 会记住当前任务：
 

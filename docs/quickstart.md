@@ -10,6 +10,14 @@ python -m pip install --upgrade pip
 pip install -e ".[dev]"
 ```
 
+Build the default Docker executor image before the first real run:
+
+```bash
+docker build -t starboost-codex:latest -f docker/codex-boost.Dockerfile .
+```
+
+StarBoost uses Docker by default and looks for `starboost-codex:latest` unless you pass `--docker-image <name>`. The bundled Dockerfile installs the Codex CLI, Python, and common shell tools. If this image is missing, `load_task` or `submit` can fail with a Docker "No such image" error when an executor round starts.
+
 Validate a task package:
 
 ```bash

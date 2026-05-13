@@ -63,6 +63,10 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -e ".[dev]"
 
+# Build the default Docker executor image from the bundled Dockerfile.
+# StarBoost looks for this image unless you pass --docker-image.
+docker build -t starboost-codex:latest -f docker/codex-boost.Dockerfile .
+
 # Start the StarBoost workspace.
 starboost
 
@@ -75,6 +79,8 @@ starboost [my_task]> submit
 starboost [my_task]> status
 starboost [my_task]> home
 ```
+
+StarBoost uses Docker by default. Build `starboost-codex:latest` before the first real executor run, otherwise Docker will report that the image cannot be found. The bundled Dockerfile installs the Codex CLI plus Python and common shell tools. StarBoost then starts each executor round in a locked-down container with only the round workspace and per-round `CODEX_HOME` mounted.
 
 Direct commands work too. After `load_task`, StarBoost remembers the current task:
 
@@ -101,7 +107,7 @@ Bundled examples include:
 | `examples/legal_risk_memo_task` | A legal-style vendor data-sharing risk memo grounded in supplied policy excerpts. | `min_strengths=3`, `initial_min_weaknesses=5`, decrement `1`; richer qualitative review for nuanced writing. | `timeout_seconds=2400`. |
 | `examples/checkpoint_resume_task` | A pre-run checkpoint example with real `gpt-5.5` Docker traces. It has completed cold start plus one boost round and is waiting for the next review. | `min_strengths=2`, current `min_weaknesses=2`; demonstrates resume-and-continue behavior. | `timeout_seconds=2400`; generated with Docker + `gpt-5.5`. |
 
-By default StarBoost uses Docker isolation for executor runs. See [Docker And Auth](docs/docker_and_auth.md) for the image and credential expectations.
+By default StarBoost uses Docker isolation for executor runs. See [Docker And Auth](docs/docker_and_auth.md) for image, credential, and `--docker-image` details.
 
 ## Task Packages
 
