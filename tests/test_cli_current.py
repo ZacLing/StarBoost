@@ -2,6 +2,7 @@ import json
 import stat
 from pathlib import Path
 
+import starboost.cli as cli
 from starboost.cli import main
 from starboost.cli import StarBoostShell
 from starboost.context import get_current_task_path
@@ -89,3 +90,26 @@ def test_resolve_package_path_tolerates_repeated_cwd_name(tmp_path: Path, monkey
     package.mkdir(parents=True)
     monkeypatch.chdir(root)
     assert resolve_package_path("StarBoost/examples/simple_memo_task") == package.resolve()
+
+
+def test_close_finder_window_uses_indexed_window_iteration(tmp_path: Path, monkeypatch) -> None:
+    calls = []
+
+    def fake_run(cmd, **kwargs):  # type: ignore[no-untyped-def]
+        calls.append(cmd)
+
+        class Result:
+            returncode = 0
+
+        return Result()
+
+    monkeypatch.setattr(cli.sys, "platform", "darwin")
+    monkeypatch.setattr(cli.subprocess, "run", fake_run)
+
+    cli._maybe_close_finder_window(str(tmp_path), no_open=False)
+
+    assert calls
+    script = calls[0][2]
+    assert "set winCount to count of windows" in script
+    assert "repeat with i from winCount to 1 by -1" in script
+    assert str(tmp_path.resolve()) == calls[0][-1]

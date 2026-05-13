@@ -134,8 +134,10 @@ end normalizePath
 on run argv
     set wantedPath to my normalizePath(item 1 of argv)
     tell application "Finder"
-        repeat with finderWindow in windows
+        set winCount to count of windows
+        repeat with i from winCount to 1 by -1
             try
+                set finderWindow to window i
                 set windowPath to my normalizePath(POSIX path of (target of finderWindow as alias))
                 if windowPath is wantedPath then close finderWindow
             end try
