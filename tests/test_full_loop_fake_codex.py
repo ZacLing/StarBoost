@@ -121,6 +121,8 @@ def test_full_loop_with_fake_codex(tmp_path: Path) -> None:
     assert "You are not answering the reviewer" in boosted_prompt_text
     assert "Modify the deliverables" in boosted_prompt_text
     assert "Use only the weaknesses" in boosted_prompt_text
+    assert "Do not structure the deliverable around the review comments" in boosted_prompt_text
+    assert "Do not overfit to the wording of the weaknesses" in boosted_prompt_text
     boosted_output = package / "boost_runs" / "rounds" / "v001_boosted" / "workspace" / "outputs" / "answer.md"
     assert "visible material" in boosted_output.read_text(encoding="utf-8")
 

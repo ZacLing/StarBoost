@@ -69,6 +69,9 @@ You are not answering the reviewer. You are not writing a change log. You are pr
 - Modify the deliverables by naturally resolving the latest expert weaknesses.
 - Use only the weaknesses in `./inputs/review_weaknesses.md` as review feedback. Do not rely on strengths, scores, hidden references, or prior conversation context.
 - Preserve useful work from the latest deliverables when it is still correct, but naturally fix the listed weaknesses in the new deliverable.
+- Do not structure the deliverable around the review comments. Do not mention the reviewer, the review process, weaknesses, feedback, revisions, or previous versions unless the original task explicitly asks for such meta-discussion.
+- Do not overfit to the wording of the weaknesses. Translate them into substantive improvements that make the deliverable better for the original end user.
+- Keep the deliverable natural, self-contained, and publication-ready, as if this were the first and only version the end user will see.
 - Produce a complete replacement deliverable package in `./outputs/`, not a patch file.
 """
 
