@@ -39,18 +39,18 @@ When you run `starboost`, the interactive workspace opens with a dashboard panel
 +----------------------------------------------------------------------------------+
 | StarBoost workspace                                                              |
 +----------------------------------------------------------------------------------+
-| Current task       simple_memo_task                                               |
-| Status             awaiting_review                                                |
+| Current task       simple_memo_task                                              |
+| Status             awaiting_review                                               |
 |                                                                                  |
 | Common commands:                                                                 |
-|   load_task <path>     load or resume a task package                              |
-|   review               create/open the review file                                |
-|   submit               submit review and continue                                 |
-|   status               show current task metadata                                 |
-|   home                 show this dashboard                                        |
-|   exit                 leave StarBoost                                            |
+|   load_task <path>     load or resume a task package                             |
+|   review               create/open the review file                               |
+|   submit               submit review and continue                                |
+|   status               show current task metadata                                |
+|   home                 show this dashboard                                       |
+|   exit                 leave StarBoost                                           |
 |                                                                                  |
-| Next               Run `review`, edit the review file, then run `submit`.         |
+| Next               Run `review`, edit the review file, then run `submit`.        |
 +----------------------------------------------------------------------------------+
 ```
 
