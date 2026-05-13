@@ -19,13 +19,37 @@ def _line(content: str = "") -> str:
     return "| " + _clip(content, WIDTH - 4).ljust(WIDTH - 4) + " |"
 
 
+def _wrapped_lines(content: Any) -> List[str]:
+    value = "" if content is None else str(content)
+    width = WIDTH - 4
+    lines: List[str] = []
+    for raw_line in value.splitlines() or [""]:
+        text = raw_line
+        if not text:
+            lines.append(_line(""))
+            continue
+        while len(text) > width:
+            break_at = text.rfind("/", 0, width)
+            if break_at < width // 3:
+                break_at = width
+            else:
+                break_at += 1
+            lines.append(_line(text[:break_at]))
+            text = text[break_at:]
+        lines.append(_line(text))
+    return lines
+
+
 def _rule() -> str:
     return "+" + "-" * (WIDTH - 2) + "+"
 
 
 def panel(title: str, rows: Iterable[str]) -> str:
-    body: List[str] = [_rule(), _line(title), _rule()]
-    body.extend(_line(row) for row in rows)
+    body: List[str] = [_rule()]
+    body.extend(_wrapped_lines(title))
+    body.append(_rule())
+    for row in rows:
+        body.extend(_wrapped_lines(row))
     body.append(_rule())
     return "\n".join(body)
 
@@ -139,7 +163,9 @@ def render_validation(result: Dict[str, Any]) -> str:
 
 
 def render_export(result: Dict[str, Any]) -> str:
-    return panel("Export", [kv("Path", result.get("path")), kv("Bytes", result.get("bytes"))])
+    path = result.get("path")
+    directory = Path(str(path)).parent if path else None
+    return panel("Export", [kv("Path", path), kv("Directory", directory), kv("Bytes", result.get("bytes"))])
 
 
 def render_message(title: str, *lines: Any) -> str:

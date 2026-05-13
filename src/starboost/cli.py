@@ -112,6 +112,13 @@ def _maybe_open(path: str, no_open: bool) -> None:
         return
 
 
+def _maybe_open_export_parent(result: dict[str, Any], no_open: bool) -> None:
+    path = result.get("path")
+    if not path:
+        return
+    _maybe_open(str(Path(str(path)).parent), no_open)
+
+
 def _package_arg(args: argparse.Namespace) -> Optional[str]:
     return getattr(args, "package", None)
 
@@ -169,7 +176,9 @@ def cmd_submit(args: argparse.Namespace) -> int:
 
 
 def cmd_export(args: argparse.Namespace) -> int:
-    _print_json(_session(args).export(force=bool(getattr(args, "force", False))))
+    result = _session(args).export(force=bool(getattr(args, "force", False)))
+    _print_json(result)
+    _maybe_open_export_parent(result, args.no_open)
     return 0
 
 
@@ -329,7 +338,9 @@ class StarBoostShell(cmd.Cmd):
         try:
             args = self._parse(arg, "export", add_export_options=True)
             session, _ = self._session_for(args)
-            print(render_export(session.export(force=bool(getattr(args, "force", False)))))
+            result = session.export(force=bool(getattr(args, "force", False)))
+            print(render_export(result))
+            _maybe_open_export_parent(result, args.no_open)
             self._refresh_prompt()
         except SystemExit:
             return
