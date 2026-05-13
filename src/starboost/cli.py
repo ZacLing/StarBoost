@@ -7,7 +7,7 @@ import shlex
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, Optional
 
 from .config import RuntimeOverrides
 from .context import (
@@ -19,6 +19,15 @@ from .context import (
 )
 from .service import StarBoostError, StarBoostSession
 from .task_package import TaskPackageError
+from .ui import (
+    render_export,
+    render_home,
+    render_message,
+    render_review,
+    render_status,
+    render_submit,
+    render_validation,
+)
 
 
 def _add_runtime_options(parser: argparse.ArgumentParser) -> None:
@@ -47,14 +56,6 @@ def _overrides(args: argparse.Namespace) -> RuntimeOverrides:
 
 def _print_json(data: Any) -> None:
     print(json.dumps(data, indent=2, ensure_ascii=False))
-
-
-def _compact_status(status: dict[str, Any]) -> str:
-    return (
-        f"{status.get('package_id')} | {status.get('status')} | "
-        f"rounds={status.get('round_count')} reviews={status.get('review_count')} | "
-        f"min weaknesses={status.get('current_min_weaknesses')}"
-    )
 
 
 def _maybe_open(path: str, no_open: bool) -> None:
@@ -131,22 +132,9 @@ def cmd_clear(args: argparse.Namespace) -> int:
 
 
 class StarBoostShell(cmd.Cmd):
-    intro = (
-        "\n"
-        "StarBoost\n"
-        "Expert review workspace for AI deliverables.\n\n"
-        "Common commands:\n"
-        "  load_task <path>     load or resume a task package\n"
-        "  review               open a review template for the current task\n"
-        "  submit               submit the current review and continue\n"
-        "  status               show task status\n"
-        "  current              show the current task\n"
-        "  clear                clear the current task\n"
-        "  exit                 leave StarBoost\n"
-    )
-
     def __init__(self) -> None:
         super().__init__()
+        self.intro = self._home_panel()
         self._refresh_prompt()
 
     def _current_label(self) -> str:
@@ -167,71 +155,146 @@ class StarBoostShell(cmd.Cmd):
         _add_runtime_options(parser)
         return parser
 
-    def _run(
-        self,
-        argv: str,
-        handler: Callable[[argparse.Namespace], int],
-        *,
-        prog: str,
-        package_optional: bool = True,
-        add_submit_options: bool = False,
-    ) -> None:
+    def _parse(self, argv: str, prog: str, package_optional: bool = True, add_submit_options: bool = False) -> argparse.Namespace:
+        parts = shlex.split(argv)
+        parser = self._parser(prog, package_optional=package_optional)
+        if add_submit_options:
+            parser.add_argument("--review-path", default=None)
+        return parser.parse_args(parts)
+
+    def _session_for(self, args: argparse.Namespace) -> tuple[StarBoostSession, Path]:
+        package = resolve_package_path(_package_arg(args))
+        return StarBoostSession(package, _overrides(args)), package
+
+    def _status_for_current(self) -> tuple[Optional[dict[str, Any]], Optional[Path]]:
         try:
-            parts = shlex.split(argv)
-            parser = self._parser(prog, package_optional=package_optional)
-            if add_submit_options:
-                parser.add_argument("--review-path", default=None)
-            args = parser.parse_args(parts)
-            code = handler(args)
-            if code == 0:
-                self._refresh_prompt()
+            package = resolve_package_path(None, allow_discovery=False)
+            session = StarBoostSession(package)
+            return session.status(), package
+        except Exception:
+            return None, None
+
+    def _home_panel(self) -> str:
+        record = get_current_task_record()
+        status, _ = self._status_for_current()
+        return render_home(record, status)
+
+    def _shell_error(self, exc: Exception) -> None:
+        print(render_message("Error", str(exc)))
+
+    def do_load_task(self, arg: str) -> None:
+        try:
+            args = self._parse(arg, "load_task", package_optional=False)
+            package = resolve_package_path(_package_arg(args), allow_discovery=False)
+            session = StarBoostSession(package, _overrides(args))
+            status = session.load_task()
+            set_current_task(package)
+            print(render_status(status, package, title="Task loaded"))
+            self._refresh_prompt()
         except SystemExit:
             return
         except Exception as exc:  # noqa: BLE001 - shell should stay alive.
-            print(f"error: {exc}")
-
-    def do_load_task(self, arg: str) -> None:
-        self._run(arg, cmd_load_task, prog="load_task", package_optional=False)
+            self._shell_error(exc)
 
     def do_load(self, arg: str) -> None:
         self.do_load_task(arg)
 
     def do_validate(self, arg: str) -> None:
-        self._run(arg, cmd_validate, prog="validate")
+        try:
+            args = self._parse(arg, "validate")
+            session, _ = self._session_for(args)
+            print(render_validation(session.validate()))
+            self._refresh_prompt()
+        except SystemExit:
+            return
+        except Exception as exc:  # noqa: BLE001
+            self._shell_error(exc)
 
     def do_status(self, arg: str) -> None:
-        self._run(arg, cmd_status, prog="status")
+        try:
+            args = self._parse(arg, "status")
+            session, package = self._session_for(args)
+            print(render_status(session.status(), package))
+            self._refresh_prompt()
+        except SystemExit:
+            return
+        except Exception as exc:  # noqa: BLE001
+            self._shell_error(exc)
 
     def do_review(self, arg: str) -> None:
-        self._run(arg, cmd_review, prog="review")
+        try:
+            args = self._parse(arg, "review")
+            session, _ = self._session_for(args)
+            result = session.start_review()
+            print(render_review(result))
+            _maybe_open(result["review_path"], args.no_open)
+            _maybe_open(result["deliverables_path"], args.no_open)
+            self._refresh_prompt()
+        except SystemExit:
+            return
+        except Exception as exc:  # noqa: BLE001
+            self._shell_error(exc)
 
     def do_submit(self, arg: str) -> None:
-        self._run(arg, cmd_submit, prog="submit", add_submit_options=True)
+        try:
+            args = self._parse(arg, "submit", add_submit_options=True)
+            session, _ = self._session_for(args)
+            review_path = Path(args.review_path) if getattr(args, "review_path", None) else None
+            result = session.submit_review(review_path)
+            print(render_submit(result))
+            self._refresh_prompt()
+        except SystemExit:
+            return
+        except Exception as exc:  # noqa: BLE001
+            self._shell_error(exc)
 
     def do_export(self, arg: str) -> None:
-        self._run(arg, cmd_export, prog="export")
+        try:
+            args = self._parse(arg, "export")
+            session, _ = self._session_for(args)
+            print(render_export(session.export()))
+            self._refresh_prompt()
+        except SystemExit:
+            return
+        except Exception as exc:  # noqa: BLE001
+            self._shell_error(exc)
 
     def do_current(self, arg: str) -> None:
-        cmd_current(argparse.Namespace())
+        status, package = self._status_for_current()
+        if status and package:
+            print(render_status(status, package, title="Current task"))
+        else:
+            print(render_message("Current task", "No current task. Run `load_task <path>` first."))
         self._refresh_prompt()
 
     def do_clear(self, arg: str) -> None:
-        cmd_clear(argparse.Namespace())
+        clear_current_task()
+        print(render_message("Current task", "Current task cleared."))
         self._refresh_prompt()
+
+    def do_home(self, arg: str) -> None:
+        print(self._home_panel())
+        self._refresh_prompt()
+
+    def do_dashboard(self, arg: str) -> None:
+        self.do_home(arg)
 
     def do_help(self, arg: str) -> None:
         print(
-            "Commands:\n"
-            "  load_task <path> [options]   load/resume a task and make it current\n"
-            "  load <path> [options]        alias for load_task\n"
-            "  review [path] [options]      create/open review for current or explicit task\n"
-            "  submit [path] [options]      submit review for current or explicit task\n"
-            "  status [path]                show status\n"
-            "  validate [path]              validate current or explicit task\n"
-            "  export [path]                export current or explicit task\n"
-            "  current                      show current task\n"
-            "  clear                        clear current task\n"
-            "  exit                         leave StarBoost\n"
+            render_message(
+                "Commands",
+                "load_task <path> [options]   load/resume a task and make it current",
+                "load <path> [options]        alias for load_task",
+                "review [path] [options]      create/open review for current or explicit task",
+                "submit [path] [options]      submit review for current or explicit task",
+                "status [path]                show the task dashboard",
+                "validate [path]              validate current or explicit task",
+                "export [path]                export current or explicit task",
+                "current                      show current task",
+                "home                         show dashboard",
+                "clear                        clear current task",
+                "exit                         leave StarBoost",
+            )
         )
 
     def emptyline(self) -> None:
@@ -291,4 +354,3 @@ def main(argv: Optional[list[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

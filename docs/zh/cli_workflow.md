@@ -2,7 +2,7 @@
 
 [English](../cli_workflow.md) | [中文](cli_workflow.md)
 
-StarBoost 是一个命令行工作台。直接运行 `starboost` 会进入交互式界面：
+StarBoost 是一个命令行工作台。直接运行 `starboost` 会进入交互式界面，并显示 dashboard 面板：
 
 ```bash
 starboost
@@ -15,6 +15,8 @@ starboost [no task]>
 starboost [simple_memo_task]>
 ```
 
+dashboard 会展示当前任务、状态、轮次信息、关键路径和下一步建议。任何时候都可以输入 `home` 或 `dashboard` 再次显示。
+
 在交互式界面中：
 
 ```text
@@ -22,6 +24,7 @@ starboost [no task]> load_task ./examples/simple_memo_task
 starboost [simple_memo_task]> review
 starboost [simple_memo_task]> submit
 starboost [simple_memo_task]> status
+starboost [simple_memo_task]> home
 starboost [simple_memo_task]> exit
 ```
 
@@ -54,5 +57,7 @@ starboost clear
 ```
 
 `load_task` 会创建运行目录。如果还没有已有产出，它会自动启动初始 AI 产出，并把该任务设为当前任务。`review` 会为最新产出创建 review 模板。`submit` 会校验模板，如果通过，就启动下一轮产出；如果满足零 weakness 终止规则，则结束流程并导出任务包。
+
+交互式模式会输出紧凑的面板，而不是原始 JSON，方便专家快速浏览当前状态。直接命令仍保留 JSON 风格输出，便于脚本和自动化使用。
 
 `--executor-backend local` 只建议用于 smoke test 和调试。默认且推荐的隔离方式是 Docker。

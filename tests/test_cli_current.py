@@ -3,6 +3,7 @@ import stat
 from pathlib import Path
 
 from starboost.cli import main
+from starboost.cli import StarBoostShell
 from starboost.context import get_current_task_path
 
 
@@ -70,3 +71,12 @@ def test_load_task_sets_current_and_status_can_omit_path(tmp_path: Path, monkeyp
     assert main(["clear"]) == 0
     assert get_current_task_path() is None
 
+
+def test_shell_home_renders_dashboard(tmp_path: Path, monkeypatch, capsys) -> None:
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    shell = StarBoostShell()
+    shell.onecmd("home")
+    output = capsys.readouterr().out
+    assert "StarBoost workspace" in output
+    assert "Current task" in output
+    assert "Common commands" in output

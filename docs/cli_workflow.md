@@ -1,6 +1,6 @@
 # CLI Workflow
 
-StarBoost is designed as a command-line workspace. Running `starboost` with no arguments opens the interactive shell:
+StarBoost is designed as a command-line workspace. Running `starboost` with no arguments opens the interactive shell and shows a dashboard panel:
 
 ```bash
 starboost
@@ -13,6 +13,8 @@ starboost [no task]>
 starboost [simple_memo_task]>
 ```
 
+The dashboard gives the current task, status, round metadata, important paths, and a suggested next action. Use `home` or `dashboard` at any time to show it again.
+
 Inside the shell:
 
 ```text
@@ -20,6 +22,7 @@ starboost [no task]> load_task ./examples/simple_memo_task
 starboost [simple_memo_task]> review
 starboost [simple_memo_task]> submit
 starboost [simple_memo_task]> status
+starboost [simple_memo_task]> home
 starboost [simple_memo_task]> exit
 ```
 
@@ -52,5 +55,7 @@ Useful options:
 ```
 
 `load_task` creates runtime folders, automatically runs the initial executor if no prior deliverable exists, and makes the package the current task. `review` creates a template for the latest deliverable. `submit` validates that template and either launches the next executor round or terminates and exports the package if the zero-weakness termination rule is met.
+
+In interactive mode, StarBoost prints compact panels instead of raw JSON so the workspace is easier to scan. Direct commands keep JSON-style output for scripts and automation.
 
 Use `--executor-backend local` only for smoke tests. Docker is the default and recommended backend for isolation.

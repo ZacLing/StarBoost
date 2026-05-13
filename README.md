@@ -31,6 +31,29 @@ Task package
   -> Export the full annotation record
 ```
 
+## Workspace UI
+
+When you run `starboost`, the interactive workspace opens with a dashboard panel. It shows the current task, state, rounds, review progress, weakness minimum, key paths, and the suggested next action.
+
+```text
++----------------------------------------------------------------------------------+
+| StarBoost workspace                                                              |
++----------------------------------------------------------------------------------+
+| Current task       simple_memo_task                                               |
+| Status             awaiting_review                                                |
+|                                                                                  |
+| Common commands:                                                                 |
+|   load_task <path>     load or resume a task package                              |
+|   review               create/open the review file                                |
+|   submit               submit review and continue                                 |
+|   status               show current task metadata                                 |
+|   home                 show this dashboard                                        |
+|   exit                 leave StarBoost                                            |
+|                                                                                  |
+| Next               Run `review`, edit the review file, then run `submit`.         |
++----------------------------------------------------------------------------------+
+```
+
 ## Quick Start
 
 ```bash
@@ -50,6 +73,7 @@ starboost [no task]> load_task /path/to/package --executor-model gpt-5.5
 starboost [my_task]> review
 starboost [my_task]> submit
 starboost [my_task]> status
+starboost [my_task]> home
 ```
 
 Direct commands work too. After `load_task`, StarBoost remembers the current task:
