@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from starboost.review import parse_review, validate_review
+from starboost.review import create_review_template, parse_review, validate_review
 
 
 def test_parse_review_strengths_weaknesses_and_scores(tmp_path: Path) -> None:
@@ -102,3 +102,16 @@ def test_review_validation_rejects_duplicate_comments(tmp_path: Path) -> None:
     validation = validate_review(parsed, min_strengths=1, min_weaknesses=1)
     assert validation["valid"] is False
     assert any("Duplicate strengths" in error for error in validation["errors"])
+
+
+def test_review_template_has_clear_visual_fill_areas(tmp_path: Path) -> None:
+    review = tmp_path / "r001_review" / "review.md"
+    review.parent.mkdir()
+    create_review_template(review, "demo", "v000_cold_start", tmp_path / "outputs", 3, 2)
+    text = review.read_text(encoding="utf-8")
+    assert "| Minimum strengths required | `3` |" in text
+    assert "| Minimum weaknesses required | `2` |" in text
+    assert text.count("---") >= 5
+    assert "Write strengths below:" in text
+    assert "Write weaknesses below:" in text
+    assert "Write the score below:" in text

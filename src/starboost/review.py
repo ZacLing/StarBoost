@@ -49,33 +49,54 @@ def create_review_template(
 | Minimum strengths required | `{min_strengths}` |
 | Minimum weaknesses required | `{min_weaknesses}` |
 
+---
+
 ## Human-Reviewer Comments
 
 ### Strengths
 
 Please provide at least {min_strengths} distinct strengths of the current deliverables.
 
+Write strengths below:
+
 {strengths}
+
+---
 
 ### Weaknesses
 
 Please provide at least {min_weaknesses} distinct weaknesses in this round. This number is only a lower bound; you may write more if the deliverables still need work. If the minimum is 0 and you write no weaknesses, the boosting loop will terminate.
 
+Write weaknesses below:
+
 {weaknesses}
+
+---
 
 ### Latest Deliverables Satisfaction
 
 Score the current deliverables only. Use an integer from 1 to 5, where 5 means very satisfied and 1 means very dissatisfied.
 
+Write the score below:
+
 ()/5
+
+---
 
 ### Latest Deliverables Aligns User Scores
 
 Score the current deliverables against your own expected performance on this task. Use an integer from 1 to 10. Treat 5 as the level you personally would have achieved on this task.
 
+Write the score below:
+
 ()/10
 
+---
+
 ### Notes
+
+Optional notes for yourself or future audit context:
+
 
 """
     write_text(path, template)
