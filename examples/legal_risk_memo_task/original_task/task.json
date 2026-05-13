@@ -1,0 +1,15 @@
+{
+  "task_id": "legal_risk_memo_task",
+  "prompt_file": "prompt.md",
+  "rubrics_file": "rubrics.json",
+  "materials_dir": "materials",
+  "allow_web_search": false,
+  "starboost": {
+    "review_policy": {
+      "min_strengths": 1,
+      "initial_min_weaknesses": 2,
+      "weakness_decrement_per_round": 1,
+      "allow_zero_weakness_termination": true
+    }
+  }
+}

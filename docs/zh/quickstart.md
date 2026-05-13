@@ -18,10 +18,13 @@ pip install -e ".[dev]"
 starboost validate ./examples/my_task
 ```
 
-仓库里包含一个极简示例：
+仓库里包含几个示例：
 
 ```bash
 starboost validate examples/simple_memo_task
+starboost validate examples/code_cli_task
+starboost validate examples/biostats_csv_task
+starboost validate examples/legal_risk_memo_task
 ```
 
 启动交互式工作台：

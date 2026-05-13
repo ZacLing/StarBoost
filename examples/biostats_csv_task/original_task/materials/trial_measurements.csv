@@ -1,0 +1,9 @@
+participant_id,cohort,baseline_ldl,week12_ldl
+P001,control,142.0,137.0
+P002,control,156.0,148.0
+P003,control,149.0,151.0
+P004,control,161.0,150.0
+P005,treatment,158.0,136.0
+P006,treatment,171.0,149.0
+P007,treatment,165.0,152.0
+P008,treatment,154.0,132.0

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "R001",
+    "question": "Does the deliverable include outputs/biomarker_summary.csv?",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R002",
+    "question": "Does the CSV include exactly the requested columns: cohort, n, mean_baseline_ldl, mean_week12_ldl, mean_change_ldl, responder_count, responder_rate?",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R003",
+    "question": "Does the treatment row report n=4, mean_baseline_ldl=162.000, mean_week12_ldl=142.250, mean_change_ldl=-19.750, responder_count=3, and responder_rate=0.750?",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R004",
+    "question": "Does the control row report n=4, mean_baseline_ldl=152.000, mean_week12_ldl=146.500, mean_change_ldl=-5.500, responder_count=0, and responder_rate=0.000?",
+    "expected": true,
+    "fail_fast": true
+  }
+]

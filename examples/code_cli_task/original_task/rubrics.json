@@ -1,0 +1,26 @@
+[
+  {
+    "id": "R001",
+    "question": "Does the deliverable include outputs/unit_converter/unit_converter/__main__.py so it can run with python -m unit_converter from the deliverable directory?",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R002",
+    "question": "Does the implementation use only the Python standard library?",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R003",
+    "question": "Does the sample command python -m unit_converter --value 3.5 --from km --to m --json produce valid JSON with converted_value equal to 3500.0?",
+    "expected": true,
+    "fail_fast": true
+  },
+  {
+    "id": "R004",
+    "question": "Does the deliverable include a README and at least one test file?",
+    "expected": true,
+    "fail_fast": true
+  }
+]

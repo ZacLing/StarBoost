@@ -85,11 +85,20 @@ starboost submit
 starboost status
 ```
 
-Validate the bundled example package:
+Validate one of the bundled example packages:
 
 ```bash
 starboost validate examples/simple_memo_task
 ```
+
+Bundled examples include:
+
+| Package | What it demonstrates |
+| --- | --- |
+| `examples/simple_memo_task` | A short implementation memo from project notes. |
+| `examples/code_cli_task` | A Python standard-library CLI deliverable with tests. |
+| `examples/biostats_csv_task` | A biostatistics summary CSV generated from trial measurements. |
+| `examples/legal_risk_memo_task` | A legal-style vendor data-sharing risk memo grounded in supplied policy excerpts. |
 
 By default StarBoost uses Docker isolation for executor runs. See [Docker And Auth](docs/docker_and_auth.md) for the image and credential expectations.
 

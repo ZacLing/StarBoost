@@ -16,10 +16,13 @@ Validate a task package:
 starboost validate ./examples/my_task
 ```
 
-The repository includes a tiny example:
+The repository includes several examples:
 
 ```bash
 starboost validate examples/simple_memo_task
+starboost validate examples/code_cli_task
+starboost validate examples/biostats_csv_task
+starboost validate examples/legal_risk_memo_task
 ```
 
 Start the interactive workspace:
