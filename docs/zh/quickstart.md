@@ -2,6 +2,20 @@
 
 [English](../quickstart.md) | [中文](quickstart.md)
 
+## 方式 A：让 Codex 帮你安装
+
+把这个仓库文件夹作为 Codex 的 workspace 打开，或者直接把你本机 `StarBoost` 文件夹的绝对路径发给 Codex。然后给 Codex 发送这段 prompt：
+
+```text
+请完整理解这个 StarBoost 项目，并把它安装到我的电脑里。
+
+请使用我提供的 StarBoost 仓库路径作为项目根目录。帮我创建 Python 虚拟环境，以 editable 模式安装项目；用 docker/codex-boost.Dockerfile 构建默认 Docker executor 镜像 starboost-codex:latest；校验所有内置 example task package；并跑通一个内置 example task，证明 CLI 可以正常工作。优先选择安全的内置示例，不要修改无关文件。最后请汇报你运行过的准确命令、Docker 和 Codex auth 是否已经准备好、你跑的是哪个 example、输出写到了哪里，以及我还需要补充配置什么。
+```
+
+Codex 最后应该给出简短报告。如果 Docker 没启动、镜像不存在，或者 Codex 认证还没配置好，请让它先修复或明确说明这个具体 setup 问题，再运行真实 executor round。
+
+## 方式 B：手动安装
+
 以 editable 模式安装：
 
 ```bash

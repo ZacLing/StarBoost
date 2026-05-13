@@ -56,6 +56,20 @@ When you run `starboost`, the interactive workspace opens with a dashboard panel
 
 ## Quick Start
 
+### Option A: Let Codex Install It For You
+
+Open Codex with this repository folder as the workspace, or give Codex the absolute path to your local `StarBoost` folder. Then send Codex this prompt:
+
+```text
+Please understand this StarBoost project and install it on my computer.
+
+Use the StarBoost repository path I provided as the project root. Set up the Python virtual environment, install the package in editable mode, build the default Docker executor image from docker/codex-boost.Dockerfile as starboost-codex:latest, validate all bundled example task packages, and run one bundled example task far enough to prove the CLI works. Prefer a safe built-in example and avoid changing unrelated files. At the end, report the exact commands you ran, whether Docker and Codex auth are ready, which example you ran, where the outputs were written, and any remaining setup I need to do.
+```
+
+Codex should end with a short report. If Docker is not running, the Docker image is missing, or Codex authentication is not configured, ask it to fix or explain that specific setup issue before running a real executor round.
+
+### Option B: Manual Install
+
 ```bash
 cd StarBoost
 python3 -m venv .venv
