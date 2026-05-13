@@ -51,6 +51,10 @@ StarBoost runtime note:
     boost = """
 - Previous deliverables are available under `./inputs/previous_deliverables/`.
 - The latest human expert weaknesses are available in `./inputs/review_weaknesses.md`.
+- This is an expert-boosting revision round. Your job is to produce a new complete version of the task deliverables after reviewing the original task, the latest deliverables, and the latest expert weaknesses.
+- Use only the weaknesses in `./inputs/review_weaknesses.md` as review feedback. Do not rely on strengths, scores, hidden references, or prior conversation context.
+- Preserve useful work from the latest deliverables when it is still correct, but naturally fix the listed weaknesses in the new deliverable.
+- Do not write a response to the reviewer, a change log, or a patch note. The output should read like a standalone final deliverable for the original task.
 - Produce a complete replacement deliverable package in `./outputs/`, not a patch file.
 """
     return prompt.rstrip() + common + boost
