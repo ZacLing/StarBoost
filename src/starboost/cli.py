@@ -112,7 +112,7 @@ def cmd_submit(args: argparse.Namespace) -> int:
 
 
 def cmd_export(args: argparse.Namespace) -> int:
-    _print_json(_session(args).export())
+    _print_json(_session(args).export(force=bool(getattr(args, "force", False))))
     return 0
 
 
@@ -155,11 +155,20 @@ class StarBoostShell(cmd.Cmd):
         _add_runtime_options(parser)
         return parser
 
-    def _parse(self, argv: str, prog: str, package_optional: bool = True, add_submit_options: bool = False) -> argparse.Namespace:
+    def _parse(
+        self,
+        argv: str,
+        prog: str,
+        package_optional: bool = True,
+        add_submit_options: bool = False,
+        add_export_options: bool = False,
+    ) -> argparse.Namespace:
         parts = shlex.split(argv)
         parser = self._parser(prog, package_optional=package_optional)
         if add_submit_options:
             parser.add_argument("--review-path", default=None)
+        if add_export_options:
+            parser.add_argument("--force", action="store_true")
         return parser.parse_args(parts)
 
     def _session_for(self, args: argparse.Namespace) -> tuple[StarBoostSession, Path]:
@@ -250,9 +259,9 @@ class StarBoostShell(cmd.Cmd):
 
     def do_export(self, arg: str) -> None:
         try:
-            args = self._parse(arg, "export")
+            args = self._parse(arg, "export", add_export_options=True)
             session, _ = self._session_for(args)
-            print(render_export(session.export()))
+            print(render_export(session.export(force=bool(getattr(args, "force", False)))))
             self._refresh_prompt()
         except SystemExit:
             return
@@ -289,7 +298,7 @@ class StarBoostShell(cmd.Cmd):
                 "submit [path] [options]      submit review for current or explicit task",
                 "status [path]                show the task dashboard",
                 "validate [path]              validate current or explicit task",
-                "export [path]                export current or explicit task",
+                "export [path] [--force]      export terminated task; --force makes a snapshot",
                 "current                      show current task",
                 "home                         show dashboard",
                 "clear                        clear current task",
@@ -327,6 +336,8 @@ def build_parser() -> argparse.ArgumentParser:
             p.add_argument("package", nargs="?")
         if name == "submit":
             p.add_argument("--review-path", default=None)
+        if name == "export":
+            p.add_argument("--force", action="store_true")
         _add_runtime_options(p)
         p.set_defaults(handler=handler)
 

@@ -3,8 +3,10 @@ import os
 import stat
 from pathlib import Path
 
+import pytest
+
 from starboost.config import RuntimeOverrides
-from starboost.service import StarBoostSession
+from starboost.service import StarBoostError, StarBoostSession
 
 
 def _fake_codex(tmp_path: Path) -> Path:
@@ -139,6 +141,21 @@ def test_full_loop_with_fake_codex(tmp_path: Path) -> None:
     assert terminal["accepted"] is True
     assert terminal["terminated"] is True
     assert Path(terminal["export"]["path"]).exists()
+    assert Path(session.export()["path"]).exists()
+
+
+def test_export_requires_terminal_state_unless_forced(tmp_path: Path) -> None:
+    fake = _fake_codex(tmp_path)
+    package = _package(tmp_path, fake)
+    session = StarBoostSession(package, RuntimeOverrides(executor_backend="local", codex_bin=str(fake), no_open=True))
+
+    session.load_task()
+
+    with pytest.raises(StarBoostError, match="not terminated"):
+        session.export()
+
+    snapshot = session.export(force=True)
+    assert Path(snapshot["path"]).exists()
 
 
 def test_load_task_archives_stale_incomplete_round(tmp_path: Path) -> None:

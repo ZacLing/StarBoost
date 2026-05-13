@@ -143,9 +143,13 @@ class StarBoostSession:
         save_state(self.package_root, self.state)
         return {"accepted": True, "terminated": False, "round": metadata, "validation": validation}
 
-    def export(self) -> Dict[str, Any]:
+    def export(self, force: bool = False) -> Dict[str, Any]:
+        if self.state.get("status") != "terminated" and not force:
+            raise StarBoostError(
+                "Task is not terminated yet. Submit a zero-weakness terminal review first, "
+                "or run export with --force to create a non-terminal snapshot."
+            )
         record = export_package(self.package_root, self.state)
         self.state.setdefault("exports", []).append(record)
         save_state(self.package_root, self.state)
         return record
-
